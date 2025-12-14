@@ -1,0 +1,155 @@
+/* ============================================
+   ALERTAS DASHBOARD CSS
+   ============================================ */
+
+/* KPI Cards */
+.kpi-card {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.kpi-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.kpi-icon {
+    font-size: 48px;
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+}
+
+.kpi-danger {
+    border-left: 4px solid #dc3545;
+}
+
+.kpi-danger .kpi-icon {
+    background: linear-gradient(135deg, #dc3545, #f5576c);
+    color: white;
+}
+
+.kpi-warning {
+    border-left: 4px solid #ffc107;
+}
+
+.kpi-warning .kpi-icon {
+    background: linear-gradient(135deg, #ffc107, #ffdb4d);
+    color: white;
+}
+
+.kpi-info {
+    border-left: 4px solid #17a2b8;
+}
+
+.kpi-info .kpi-icon {
+    background: linear-gradient(135deg, #17a2b8, #5bc0de);
+    color: white;
+}
+
+.kpi-success {
+    border-left: 4px solid #28a745;
+}
+
+.kpi-success .kpi-icon {
+    background: linear-gradient(135deg, #28a745, #5cb85c);
+    color: white;
+}
+
+.kpi-content h3 {
+    font-size: 36px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.kpi-content p {
+    font-size: 14px;
+    color: #6c757d;
+    margin: 0;
+}
+
+/* Badges de Prioridad */
+.prioridad-critica {
+    background: linear-gradient(135deg, #721c24, #dc3545);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.prioridad-alta {
+    background: linear-gradient(135deg, #ffc107, #ffdb4d);
+    color: #856404;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.prioridad-media {
+    background: linear-gradient(135deg, #17a2b8, #5bc0de);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.prioridad-baja {
+    background: linear-gradient(135deg, #6c757d, #adb5bd);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+/* Badges de Estado */
+.estado-pendiente {
+    background: #ffc107;
+    color: #856404;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.estado-en_revision {
+    background: #17a2b8;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.estado-resuelta {
+    background: #28a745;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.estado-descartada {
+    background: #6c757d;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+/* Tabla de Alertas */
+.table-hover tbody tr {
+    transition: all 0.2s;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
+}

@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Dashboard de Alertas - AcademicPredict{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/alertas_dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>
+                <i class="fas fa-bell me-2"></i>
+                Dashboard de Alertas
+            </h2>
+
+            {% if user.perfil.rol == 'analista' %}
+            <div class="alert alert-info mt-2">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Vista de Analista:</strong> Mostrando solo casos asignados a ti
+            </div>
+            {% elif user.perfil.rol == 'coordinador_carrera' %}
+            <div class="alert alert-info mt-2">
+                <i class="fas fa-filter me-2"></i>
+                <strong>Vista filtrada:</strong> Mostrando solo estudiantes de {{ user.perfil.carrera_asignada.nombre }}
+            </div>
+            {% endif %}
+
+            <p class="text-muted">Gestión de estudiantes en riesgo de deserción</p>
+        </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="kpi-card kpi-danger">
+                <div class="kpi-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="kpi-content">
+                    <h3>{{ alertas_criticas|intcomma }}</h3>
+                    <p>Alertas Críticas</p>
+                    <span class="badge bg-danger">{{ pct_criticas|floatformat:1 }}%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="kpi-card kpi-warning">
+                <div class="kpi-icon">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div class="kpi-content">
+                    <h3>{{ alertas_altas|intcomma }}</h3>
+                    <p>Alertas Altas</p>
+                    <span class="badge bg-warning">{{ pct_altas|floatformat:1 }}%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="kpi-card kpi-info">
+                <div class="kpi-icon">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <div class="kpi-content">
+                    <h3>{{ alertas_pendientes|intcomma }}</h3>
+                    <p>Alertas Pendientes</p>
+                    <span class="badge bg-info">Total</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="kpi-card kpi-success">
+                <div class="kpi-icon">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <div class="kpi-content">
+                    <h3>{{ estudiantes_seguimiento|intcomma }}</h3>
+                    <p>En Seguimiento</p>
+                    <span class="badge bg-success">Activos</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-filter me-2"></i>Filtros</h5>
+                </div>
+                <div class="card-body">
+                    <form method="GET" id="filtrosForm">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label>Estado</label>
+                                <select name="estado" class="form-select">
+                                    <option value="">Todos</option>
+                                    <option value="pendiente">Pendiente</option>
+                                    <option value="en_revision">En Revisión</option>
+                                    <option value="resuelta">Resuelta</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label>Prioridad</label>
+                                <select name="prioridad" class="form-select">
+                                    <option value="">Todas</option>
+                                    <option value="critica">Crítica</option>
+                                    <option value="alta">Alta</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label>Búsqueda</label>
+                                <input type="text" name="busqueda" class="form-control" placeholder="Código de estudiante...">
+                            </div>
+
+                            <div class="col-md-2">
+                                <label>&nbsp;</label>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-search me-2"></i>Filtrar
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de Alertas -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-list me-2"></i>Listado de Alertas</h5>
+                    <span class="badge bg-primary">{{ alertas.count }} resultados</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Estudiante</th>
+                                    <th>Prioridad</th>
+                                    <th>Tipo</th>
+                                    <th>Índice Riesgo</th>
+                                    <th>Estado</th>
+                                    <th>Fecha</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for alerta in alertas %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ alerta.estudiante.codigo_estudiante }}</strong>
+                                    </td>
+                                    <td>
+                                        <span class="badge prioridad-{{ alerta.prioridad }}">
+                                            {{ alerta.get_prioridad_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ alerta.get_tipo_alerta_display }}</td>
+                                    <td>
+                                        {% if alerta.prediccion %}
+                                            {% with indice=alerta.prediccion.indice_riesgo %}
+                                                {% if indice or indice == 0 %}
+                                                    <span class="badge bg-danger">
+                                                        {{ indice|floatformat:1 }}%
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">N/A</span>
+                                                {% endif %}
+                                            {% endwith %}
+                                        {% else %}
+                                            <span class="badge bg-secondary">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge estado-{{ alerta.estado }}">
+                                            {{ alerta.get_estado_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ alerta.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        <a href="{% url 'alertas:detalle' pk=alerta.id %}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-4">
+                                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                                        <p>No hay alertas que mostrar</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/alertas_dashboard.js' %}"></script>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

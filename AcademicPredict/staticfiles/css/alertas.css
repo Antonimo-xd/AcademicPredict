@@ -1,0 +1,574 @@
+.stat-card-seguimiento {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.stat-card-seguimiento:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Iconos con opacidad, igual que stat-card normal */
+.stat-card-seguimiento .stat-icon {
+    font-size: 48px;
+    opacity: 0.2;
+}
+
+/* Colores de iconos */
+.stat-card-seguimiento.stat-alertas .stat-icon { color: #667eea; }
+.stat-card-seguimiento.stat-criticas .stat-icon { color: #f5576c; }
+.stat-card-seguimiento.stat-estudiantes .stat-icon { color: #4facfe; }
+.stat-card-seguimiento.stat-intervenciones .stat-icon { color: #11998e; }
+
+.stat-card-seguimiento .stat-content h3 {
+    font-size: 36px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.stat-card-seguimiento .stat-content p {
+    font-size: 14px;
+    color: #6c757d;
+    margin: 0;
+}
+
+/* ============================================
+   ACTION CARD DE ALERTAS
+   Igual que las otras (Importar, Dashboard, etc)
+   ============================================ */
+
+.action-card-alertas {
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.action-card-alertas:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.action-card-alertas .action-icon {
+    font-size: 60px;
+    color: #667eea;
+    margin-bottom: 15px;
+    /* SIN fondo de color */
+}
+
+.action-card-alertas h5 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.action-card-alertas p {
+    color: #6c757d;
+    margin-bottom: 20px;
+    flex-grow: 1;
+}
+
+.action-card-alertas .btn {
+    background: linear-gradient(135deg, #dc3545, #f5576c);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.action-card-alertas .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+/* ============================================
+   CAMPANA DE ALERTAS (Sidebar)
+   ============================================ */
+
+.alertas-campana {
+    position: relative;
+    display: inline-block;
+}
+
+.alertas-campana .btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.3s;
+    position: relative;
+}
+
+.alertas-campana .btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Badge de notificaciones */
+.alertas-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #f5576c;
+    color: white;
+    border-radius: 50%;
+    min-width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    border: 2px solid #2c3e50;
+    animation: pulse-badge 2s infinite;
+}
+
+@keyframes pulse-badge {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
+/* ============================================
+   DROPDOWN DE ALERTAS (POSICIÓN FIJA)
+   IMPORTANTE: pointer-events para permitir clicks
+   ============================================ */
+
+.alertas-dropdown {
+    position: fixed;
+    left: 280px;
+    top: 60px;
+    width: 380px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    z-index: 2001;
+    display: none;
+    overflow: hidden;
+    pointer-events: auto;
+}
+
+.alertas-dropdown.show {
+    display: block;
+    animation: slideInRight 0.3s ease;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Header del dropdown */
+.alertas-dropdown-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px 20px;
+    font-weight: 600;
+    font-size: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Body con scroll */
+.alertas-dropdown-body {
+    max-height: 400px;
+    overflow-y: auto;
+    background: white;
+}
+
+/* Scrollbar personalizado */
+.alertas-dropdown-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.alertas-dropdown-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.alertas-dropdown-body::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 3px;
+}
+
+/* Items de alertas */
+.alerta-item {
+    padding: 15px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.2s;
+    cursor: pointer;
+    background: white;
+}
+
+.alerta-item:last-child {
+    border-bottom: none;
+}
+
+.alerta-item:hover {
+    background: #f8f9fa;
+}
+
+.alerta-item strong {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 14px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.alerta-item p {
+    color: #6c757d;
+    font-size: 13px;
+    margin: 5px 0;
+    line-height: 1.4;
+}
+
+.alerta-item small {
+    color: #adb5bd;
+    font-size: 12px;
+}
+
+/* Badge de prioridad */
+.alerta-prioridad-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 8px;
+}
+
+.alerta-prioridad-critica {
+    background: linear-gradient(135deg, #721c24, #dc3545);
+    color: white;
+}
+
+.alerta-prioridad-alta {
+    background: linear-gradient(135deg, #dc3545, #f5576c);
+    color: white;
+}
+
+.alerta-prioridad-media {
+    background: linear-gradient(135deg, #ffc107, #ffdb4d);
+    color: #856404;
+}
+
+.alerta-prioridad-baja {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    color: white;
+}
+
+/* Riesgo badge */
+.alerta-riesgo {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    background: #dc3545;
+    color: white;
+    margin-right: 5px;
+}
+
+/* Estado vacío */
+.alertas-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6c757d;
+}
+
+.alertas-empty i {
+    font-size: 48px;
+    opacity: 0.3;
+    margin-bottom: 15px;
+    display: block;
+}
+
+/* Footer del dropdown - MEJORADO para ser clickeable */
+.alertas-dropdown-footer {
+    padding: 12px 20px;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+}
+
+.alertas-dropdown-footer .btn,
+.alertas-dropdown-footer a {
+    width: 100%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+    cursor: pointer; /* IMPORTANTE */
+    pointer-events: auto; /* IMPORTANTE */
+}
+
+.alertas-dropdown-footer .btn:hover,
+.alertas-dropdown-footer a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    color: white;
+}
+
+/* ============================================
+   OVERLAY (Fondo oscuro)
+   ============================================ */
+
+.alertas-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 1999;
+    display: none;
+}
+
+.alertas-overlay.show {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ============================================
+   BANNER ALERTAS HOME (COLAPSABLE)
+   ============================================ */
+
+.alerta-banner-home {
+    background: white;
+    padding: 0;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-left: 4px solid #dc3545;
+    margin-bottom: 25px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.alerta-banner-content {
+    padding: 20px 25px;
+    transition: all 0.3s ease;
+}
+
+/* Botón cerrar */
+.alerta-banner-home .btn-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+.alerta-banner-home .btn-close:hover {
+    opacity: 1;
+}
+
+/* Botón expandir (cuando está colapsado) */
+.btn-expandir-alertas {
+    width: 100%;
+    background: linear-gradient(135deg, #dc3545, #f5576c);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s;
+    opacity: 0;
+    animation: fadeInButton 0.3s ease forwards;
+}
+
+@keyframes fadeInButton {
+    to { opacity: 1; }
+}
+
+.btn-expandir-alertas:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+    color: white;
+}
+
+.btn-expandir-alertas i {
+    animation: ringBell 1s ease infinite;
+}
+
+@keyframes ringBell {
+    0%, 100% { transform: rotate(0deg); }
+    10%, 30% { transform: rotate(-10deg); }
+    20%, 40% { transform: rotate(10deg); }
+}
+
+/* ============================================
+   STAT CARDS DE SEGUIMIENTO (HOME)
+   Sin fondos de colores
+   ============================================ */
+
+.stat-card-seguimiento {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.stat-card-seguimiento:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.stat-card-seguimiento .stat-icon {
+    font-size: 48px;
+    opacity: 0.2;
+}
+
+.stat-card-seguimiento.stat-alertas .stat-icon { color: #667eea; }
+.stat-card-seguimiento.stat-criticas .stat-icon { color: #f5576c; }
+.stat-card-seguimiento.stat-estudiantes .stat-icon { color: #4facfe; }
+.stat-card-seguimiento.stat-intervenciones .stat-icon { color: #11998e; }
+
+.stat-card-seguimiento .stat-content h3 {
+    font-size: 36px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.stat-card-seguimiento .stat-content p {
+    font-size: 14px;
+    color: #6c757d;
+    margin: 0;
+}
+
+/* ============================================
+   ACTION CARD DE ALERTAS (HOME)
+   Sin fondo de color
+   ============================================ */
+
+.action-card-alertas {
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.action-card-alertas:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.action-card-alertas .action-icon {
+    font-size: 60px;
+    color: #dc3545;
+    margin-bottom: 15px;
+}
+
+.action-card-alertas h5 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.action-card-alertas p {
+    color: #6c757d;
+    margin-bottom: 20px;
+    flex-grow: 1;
+}
+
+/* ============================================
+   BADGE EN SIDEBAR
+   ============================================ */
+
+#sidebar-alertas-badge {
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 10px;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 991px) {
+    .alertas-dropdown {
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        top: 80px;
+        width: 90%;
+        max-width: 380px;
+    }
+    
+    .alertas-dropdown.show {
+        animation: slideInTop 0.3s ease;
+    }
+    
+    @keyframes slideInTop {
+        from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    }
+}
+
+@media (max-width: 576px) {
+    .alertas-dropdown {
+        width: 95%;
+        max-width: 320px;
+    }
+    
+    .alertas-dropdown-body {
+        max-height: 300px;
+    }
+}
+
+
+
+
+
+
+
+
+
+

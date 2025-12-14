@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Ficha de Seguimiento - AcademicPredict{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/seguimiento.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <a href="{% url 'alertas:dashboard' %}" class="btn btn-outline-secondary mb-3">
+                <i class="fas fa-arrow-left me-2"></i>Volver
+            </a>
+            <h2>
+                <i class="fas fa-user-check me-2"></i>
+                Ficha de Seguimiento
+            </h2>
+            <p class="text-muted">Estudiante: <strong>{{ ficha.estudiante.codigo_estudiante }}</strong></p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Información General -->
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle me-2"></i>Información General</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="text-muted">Código Estudiante</label>
+                        <p class="mb-0"><strong>{{ ficha.estudiante.codigo_estudiante }}</strong></p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="text-muted">Estado de Seguimiento</label>
+                        <p class="mb-0">
+                            {% if ficha.en_seguimiento %}
+                                <span class="badge bg-success">Activo</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Inactivo</span>
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="text-muted">Último Índice de Riesgo</label>
+                        <p class="mb-0">
+                            <span class="badge bg-danger fs-5">
+                                {{ ficha.ultimo_indice_riesgo|floatformat:1 }}%
+                            </span>
+                        </p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="text-muted">Fecha de Creación</label>
+                        <p class="mb-0">{{ ficha.fecha_creacion|date:"d/m/Y H:i" }}</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="text-muted">Última Actualización</label>
+                        <p class="mb-0">{{ ficha.ultima_actualizacion|date:"d/m/Y H:i" }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acciones Rápidas -->
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-bolt me-2"></i>Acciones Rápidas</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'ml:estudiante_detalle_ml' estudiante_id=ficha.estudiante.id %}" class="btn btn-primary w-100 mb-2">
+                        <i class="fas fa-chart-line me-2"></i>Ver Predicción ML
+                    </a>
+                    
+                    {# ✅ Botón Nueva Intervención para todos #}
+                    <button class="btn btn-success w-100 mb-2" data-bs-toggle="modal" data-bs-target="#nuevaIntervencionModal">
+                        <i class="fas fa-plus me-2"></i>Nueva Intervención
+                    </button>
+                    
+                    {# ✅ SOLO ADMIN/COORDINADOR puede cambiar estado #}
+                    {% if user.perfil.rol in 'admin,coordinador' %}
+                    <button class="btn btn-warning w-100" data-bs-toggle="modal" data-bs-target="#cambiarEstadoModal">
+                        <i class="fas fa-edit me-2"></i>Cambiar Estado
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Historial de Intervenciones -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-history me-2"></i>Historial de Intervenciones</h5>
+                    <span class="badge bg-primary">{{ intervenciones.count }} intervenciones</span>
+                </div>
+                <div class="card-body">
+                    {% if intervenciones %}
+                        <div class="timeline">
+                            {% for intervencion in intervenciones %}
+                            <div class="timeline-item">
+                                <div class="timeline-marker tipo-{{ intervencion.tipo_intervencion }}"></div>
+                                <div class="timeline-content">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <h6 class="mb-1">{{ intervencion.get_tipo_intervencion_display }}</h6>
+                                            <small class="text-muted">
+                                                {{ intervencion.fecha_intervencion|date:"d/m/Y H:i" }}
+                                                {% if intervencion.responsable %}
+                                                    - Por: {{ intervencion.responsable.get_full_name }}
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                        <span class="badge resultado-{{ intervencion.resultado }}">
+                                            {{ intervencion.get_resultado_display }}
+                                        </span>
+                                    </div>
+                                    <p class="mb-0">{{ intervencion.descripcion }}</p>
+                                    {% if intervencion.observaciones %}
+                                    <div class="mt-2">
+                                        <small class="text-muted">
+                                            <strong>Observaciones:</strong> {{ intervencion.observaciones }}
+                                        </small>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-clipboard fa-3x mb-3"></i>
+                            <p>No hay intervenciones registradas</p>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevaIntervencionModal">
+                                <i class="fas fa-plus me-2"></i>Registrar Primera Intervención
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Nueva Intervención -->
+<div class="modal fade" id="nuevaIntervencionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nueva Intervención</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{% url 'alertas:nueva_intervencion' ficha.estudiante.codigo_estudiante %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label>Tipo de Intervención</label>
+                        <select name="tipo_intervencion" class="form-select" required>
+                            <option value="">Seleccione...</option>
+                            <option value="tutoria">Tutoría Académica</option>
+                            <option value="psicologica">Apoyo Psicológico</option>
+                            <option value="vocacional">Orientación Vocacional</option>
+                            <option value="financiera">Asesoría Financiera</option>
+                            <option value="seguimiento">Seguimiento General</option>
+                            <option value="reunion">Reunión con Estudiante</option>
+                            <option value="contacto_familia">Contacto con Familia</option>
+                            <option value="derivacion">Derivación a Especialista</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Descripción</label>
+                        <textarea name="descripcion" class="form-control" rows="3" required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Resultado</label>
+                        <select name="resultado" class="form-select" required>
+                            <option value="">Seleccione...</option>
+                            <option value="exitosa">Exitosa</option>
+                            <option value="parcial">Parcialmente Exitosa</option>
+                            <option value="sin_efecto">Sin Efecto</option>
+                            <option value="pendiente">Pendiente de Evaluar</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Observaciones (opcional)</label>
+                        <textarea name="observaciones" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Cambiar Estado -->
+<div class="modal fade" id="cambiarEstadoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cambiar Estado de Seguimiento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{% url 'alertas:cambiar_estado_seguimiento' ficha.estudiante.codigo_estudiante %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label>Estado</label>
+                        <select name="en_seguimiento" class="form-select" required>
+                            <option value="1" {% if ficha.en_seguimiento %}selected{% endif %}>Activo</option>
+                            <option value="0" {% if not ficha.en_seguimiento %}selected{% endif %}>Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Actualizar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/seguimiento.js' %}"></script>
+{% endblock %}

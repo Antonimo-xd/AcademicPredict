@@ -1,0 +1,249 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Importar Datos - AcademicPredict{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/importar.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    {% if user.perfil.rol != 'admin' %}
+    <div class="alert alert-danger">
+        <h4><i class="fas fa-ban me-2"></i>Acceso Denegado</h4>
+        <p>Solo los <strong>Administradores</strong> pueden importar datos.</p>
+        <p>Tu rol actual: <strong>{{ user.perfil.get_rol_display }}</strong></p>
+        <a href="{% url 'home' %}" class="btn btn-primary">
+            <i class="fas fa-home me-2"></i>Volver al Inicio
+        </a>
+    </div>
+    {% else %}
+
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>
+                <i class="fas fa-file-upload me-2"></i>
+                Importar Dataset Universitario
+            </h2>
+            <p class="text-muted">Sube tu archivo CSV con las 77 variables del dataset</p>
+        </div>
+    </div>
+    
+    <!-- Instrucciones -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info" role="alert">
+                <h5 class="alert-heading">
+                    <i class="fas fa-info-circle me-2"></i>Instrucciones
+                </h5>
+                <ul class="mb-0">
+                    <li>El archivo debe ser formato CSV (.csv)</li>
+                    <li>Debe contener las <strong>77 variables</strong> del dataset universitario</li>
+                    <li>El sistema aplicará limpieza automática de datos</li>
+                    <li>La importación puede tardar varios minutos dependiendo del tamaño</li>
+                    <li><strong>Formato requerido:</strong> Separador <code>;</code> y decimal <code>,</code></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas Actuales -->
+    <div class="row mb-4">
+        <div class="col-12 mb-3">
+            <h4><i class="fas fa-database me-2"></i>Estado Actual de la Base de Datos</h4>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="stat-card-small stat-primary">
+                <div class="stat-icon-small">
+                    <i class="fas fa-university"></i>
+                </div>
+                <div>
+                    <h4 class="stat-number-small">{{ estadisticas_bd.carreras }}</h4>
+                    <p class="stat-label-small">Carreras</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="stat-card-small stat-success">
+                <div class="stat-icon-small">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <div>
+                    <h4 class="stat-number-small">{{ estadisticas_bd.estudiantes }}</h4>
+                    <p class="stat-label-small">Estudiantes</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="stat-card-small stat-info">
+                <div class="stat-icon-small">
+                    <i class="fas fa-book"></i>
+                </div>
+                <div>
+                    <h4 class="stat-number-small">{{ estadisticas_bd.asignaturas }}</h4>
+                    <p class="stat-label-small">Asignaturas</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="stat-card-small stat-warning">
+                <div class="stat-icon-small">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <div>
+                    <h4 class="stat-number-small">{{ estadisticas_bd.registros }}</h4>
+                    <p class="stat-label-small">Registros</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario de Subida -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="upload-card">
+                <h4 class="mb-4"><i class="fas fa-cloud-upload-alt me-2"></i>Subir Archivo CSV</h4>
+                
+                <form method="post" enctype="multipart/form-data" id="uploadForm">
+                    {% csrf_token %}
+                    
+                    <div class="upload-zone" id="uploadZone">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <h5>Arrastra tu archivo CSV aquí</h5>
+                        <p class="text-muted">o haz clic para seleccionar</p>
+                        <input 
+                            type="file" 
+                            name="archivo_csv" 
+                            id="archivo_csv" 
+                            accept=".csv"
+                            style="display: none;"
+                            required
+                        >
+                        <div id="fileName" class="mt-3" style="display: none;">
+                            <i class="fas fa-file-csv me-2"></i>
+                            <span id="fileNameText"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary btn-upload" id="btnUpload" disabled>
+                            <i class="fas fa-upload me-2"></i>Iniciar Importación
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resultados de Última Importación -->
+    {% if ultima_importacion %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="results-card">
+                <h4 class="mb-3">
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    Última Importación Exitosa
+                </h4>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Concepto</th>
+                                <th>Cantidad</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Carreras Creadas</td>
+                                <td>{{ ultima_importacion.carreras }}</td>
+                                <td><span class="badge bg-success">Nuevo</span></td>
+                            </tr>
+                            <tr>
+                                <td>Estudiantes Creados</td>
+                                <td>{{ ultima_importacion.estudiantes }}</td>
+                                <td><span class="badge bg-success">Nuevo</span></td>
+                            </tr>
+                            <tr>
+                                <td>Asignaturas Creadas</td>
+                                <td>{{ ultima_importacion.asignaturas }}</td>
+                                <td><span class="badge bg-success">Nuevo</span></td>
+                            </tr>
+                            <tr>
+                                <td>Registros Académicos Creados</td>
+                                <td>{{ ultima_importacion.registros_creados }}</td>
+                                <td><span class="badge bg-success">Nuevo</span></td>
+                            </tr>
+                            <tr>
+                                <td>Registros Académicos Actualizados</td>
+                                <td>{{ ultima_importacion.registros_actualizados }}</td>
+                                <td><span class="badge bg-info">Actualizado</span></td>
+                            </tr>
+                            {% if ultima_importacion.errores > 0 %}
+                            <tr>
+                                <td>Errores Encontrados</td>
+                                <td>{{ ultima_importacion.errores }}</td>
+                                <td><span class="badge bg-warning">Revisar</span></td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                {% if ultima_importacion.reporte %}
+                <div class="mt-3">
+                    <button class="btn btn-sm btn-outline-primary" onclick="toggleReporte()">
+                        <i class="fas fa-file-alt me-2"></i>Ver Reporte Detallado
+                    </button>
+                    <pre id="reporteDetallado" class="reporte-detallado" style="display: none;">{{ ultima_importacion.reporte }}</pre>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Información Adicional -->
+    <div class="row">
+        <div class="col-12">
+            <div class="info-card">
+                <h5><i class="fas fa-question-circle me-2"></i>¿Qué hace la importación?</h5>
+                <ol class="mb-0">
+                    <li><strong>Lee el CSV:</strong> Procesa el archivo con las 77 variables del dataset</li>
+                    <li><strong>Limpia datos:</strong> Transforma hashes a etiquetas legibles (Estudiante_1, Carrera_2, etc.)</li>
+                    <li><strong>Valida información:</strong> Verifica que los datos sean correctos antes de guardar</li>
+                    <li><strong>Crea registros:</strong> Almacena todo en la base de datos</li>
+                    <li><strong>Genera reporte:</strong> Muestra estadísticas de la importación</li>
+                </ol>
+                
+                <div class="alert alert-warning mt-3 mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    <strong>Tip:</strong> Si el archivo es muy grande (>100,000 filas), la importación puede tardar 10-20 minutos. No cierres esta ventana durante el proceso.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/importar.js' %}"></script>
+{% endblock %}
+
+
+
+
+
+
+

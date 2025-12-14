@@ -1,0 +1,287 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Reportes de Alertas - AcademicPredict{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/reportes.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+    {% if user.perfil.rol not in 'admin,coordinador' %}
+    <div class="alert alert-danger">
+        <h4><i class="fas fa-ban me-2"></i>Acceso Denegado</h4>
+        <p>Solo <strong>Administradores</strong> y <strong>Coordinadores</strong> pueden generar reportes.</p>
+        <p>Tu rol actual: <strong>{{ user.perfil.get_rol_display }}</strong></p>
+        <a href="{% url 'home' %}" class="btn btn-primary">
+            <i class="fas fa-home me-2"></i>Volver al Inicio
+        </a>
+    </div>
+    {% else %}
+
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>
+                <i class="fas fa-file-alt me-2"></i>
+                Reportes de Alertas
+            </h2>
+            <p class="text-muted">Generación y descarga de reportes del sistema de alertas</p>
+        </div>
+    </div>
+
+    <!-- Resumen General -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card bg-info">
+                <div class="stat-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ total_alertas|intcomma }}</h3>
+                    <p>Total Alertas</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card bg-warning">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ alertas_pendientes|intcomma }}</h3>
+                    <p>Pendientes</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card bg-success">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ alertas_resueltas|intcomma }}</h3>
+                    <p>Resueltas</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card bg-primary">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ estudiantes_seguimiento|intcomma }}</h3>
+                    <p>En Seguimiento</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generador de Reportes -->
+    <div class="row mb-4">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-download me-2"></i>Generar Reporte</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'alertas:generar_reporte' %}">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label>Tipo de Reporte</label>
+                            <select name="tipo_reporte" class="form-select" required>
+                                <option value="">Seleccione...</option>
+                                <option value="general">Reporte General de Alertas</option>
+                                <option value="por_prioridad">Alertas por Prioridad</option>
+                                <option value="seguimiento">Estudiantes en Seguimiento</option>
+                                <option value="intervenciones">Historial de Intervenciones</option>
+                                <option value="resumen_mensual">Resumen Mensual</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Rango de Fechas</label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <input type="date" name="fecha_inicio" class="form-control" placeholder="Desde">
+                                </div>
+                                <div class="col-6">
+                                    <input type="date" name="fecha_fin" class="form-control" placeholder="Hasta">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Formato</label>
+                            <select name="formato" class="form-select" required>
+                                <option value="">Seleccione...</option>
+                                <option value="excel">Excel (.xlsx)</option>
+                                <option value="pdf">PDF (.pdf)</option>
+                                <option value="csv">CSV (.csv)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Filtros Adicionales</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="solo_criticas" id="soloCriticas">
+                                <label class="form-check-label" for="soloCriticas">
+                                    Solo alertas críticas
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="solo_pendientes" id="soloPendientes">
+                                <label class="form-check-label" for="soloPendientes">
+                                    Solo alertas pendientes
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="incluir_graficos" id="incluirGraficos">
+                                <label class="form-check-label" for="incluirGraficos">
+                                    Incluir gráficos (solo PDF)
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-download me-2"></i>Generar Reporte
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estadísticas del Periodo -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-pie me-2"></i>Estadísticas del Periodo</h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="mb-3">Alertas por Prioridad</h6>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Críticas</span>
+                            <span class="badge bg-danger">{{ alertas_criticas|intcomma }} ({{ pct_criticas|floatformat:1 }}%)</span>
+                        </div>
+                        <div class="progress mb-3">
+                            <div class="progress-bar bg-danger" style="width: {{ pct_criticas }}%"></div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Altas</span>
+                            <span class="badge bg-warning">{{ alertas_altas|intcomma }} ({{ pct_altas|floatformat:1 }}%)</span>
+                        </div>
+                        <div class="progress mb-3">
+                            <div class="progress-bar bg-warning" style="width: {{ pct_altas }}%"></div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Medias</span>
+                            <span class="badge bg-info">{{ alertas_medias|intcomma }} ({{ pct_medias|floatformat:1 }}%)</span>
+                        </div>
+                        <div class="progress mb-3">
+                            <div class="progress-bar bg-info" style="width: {{ pct_medias }}%"></div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Bajas</span>
+                            <span class="badge bg-secondary">{{ alertas_bajas|intcomma }} ({{ pct_bajas|floatformat:1 }}%)</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-secondary" style="width: {{ pct_bajas }}%"></div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <h6 class="mb-3">Alertas por Estado</h6>
+                    <div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Pendientes</span>
+                            <span class="badge bg-warning">{{ alertas_pendientes|intcomma }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>En Revisión</span>
+                            <span class="badge bg-info">{{ alertas_revision|intcomma }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Resueltas</span>
+                            <span class="badge bg-success">{{ alertas_resueltas|intcomma }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Descartadas</span>
+                            <span class="badge bg-secondary">{{ alertas_descartadas|intcomma }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Historial de Reportes Generados -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-history me-2"></i>Historial de Reportes</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Tipo de Reporte</th>
+                                    <th>Formato</th>
+                                    <th>Generado Por</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reporte in historial_reportes %}
+                                <tr>
+                                    <td>{{ reporte.fecha_generacion|date:"d/m/Y H:i" }}</td>
+                                    <td>{{ reporte.get_tipo_display }}</td>
+                                    <td>
+                                        <span class="badge bg-secondary">
+                                            {{ reporte.formato|upper }}
+                                        </span>
+                                    </td>
+                                    <td>{{ reporte.usuario.get_full_name }}</td>
+                                    <td>
+                                        <a href="{{ reporte.archivo.url }}" class="btn btn-sm btn-primary" download>
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-4">
+                                        <i class="fas fa-file fa-3x mb-3"></i>
+                                        <p>No hay reportes generados</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %} 
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/reportes.js' %}"></script>
+{% endblock %}

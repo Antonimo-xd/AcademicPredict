@@ -1,0 +1,455 @@
+# ============================================================================
+# .gitignore para AcademicPredict
+# Proyecto Django + Machine Learning
+# ============================================================================
+
+# ============================================================================
+# PYTHON
+# ============================================================================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# poetry
+poetry.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+entornovirtual/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# ============================================================================
+# DJANGO
+# ============================================================================
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Django migrations (OPCIONAL: comentar si quieres versionar migraciones)
+# */migrations/*.py
+# */migrations/*.pyc
+# !*/migrations/__init__.py
+
+# Django static files
+/static/
+/staticfiles/
+/static_root/
+/staticfiles_root/
+
+# Django media files (ARCHIVOS GRANDES)
+/media/
+/media_root/
+
+# Django secret key
+.secret_key
+secrets.json
+.secrets/
+
+# Django fixtures (si son muy grandes)
+# */fixtures/*.json
+
+# ============================================================================
+# BASE DE DATOS
+# ============================================================================
+# SQLite
+*.sqlite3
+*.db
+
+# MySQL
+*.sql
+*.sql.gz
+
+# PostgreSQL
+*.dump
+
+# Backups de BD (ARCHIVOS MUY GRANDES)
+backups/
+*.backup
+*.bak
+db_backups/
+
+# ============================================================================
+# ARCHIVOS DE DATOS (MUY IMPORTANTES PARA TU PROYECTO)
+# ============================================================================
+# Datasets CSV/Excel (ARCHIVOS GRANDES)
+*.csv
+!requirements.txt  # Excepto requirements
+*.xlsx
+*.xls
+*.xlsm
+
+# Archivos de datos temporales
+temp_uploads/
+uploads/
+data/raw/
+data/processed/
+datasets/
+
+# Archivos de ML entrenados (MODELOS GRANDES)
+*.pkl
+*.pickle
+*.joblib
+*.h5
+*.hdf5
+*.model
+*.pt
+*.pth
+*.ckpt
+
+# Modelos XGBoost
+*.xgb
+*.ubj
+
+# Scikit-learn models
+models/
+saved_models/
+trained_models/
+ml_models/
+
+# Logs de entrenamiento
+training_logs/
+tensorboard_logs/
+logs/
+
+# ============================================================================
+# IDEs y Editores
+# ============================================================================
+# Visual Studio Code
+.vscode/
+*.code-workspace
+.history/
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+*.ipr
+.idea_modules/
+
+# Sublime Text
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+*.sublime-workspace
+*.sublime-project
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+
+# Eclipse
+.metadata
+.project
+.pydevproject
+
+# NetBeans
+nbproject/
+nbbuild/
+nbdist/
+.nb-gradle/
+
+# ============================================================================
+# SISTEMA OPERATIVO
+# ============================================================================
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ============================================================================
+# ARCHIVOS TEMPORALES
+# ============================================================================
+# Archivos temporales generales
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~.nib
+local.properties
+
+# Archivos de caché
+cache/
+.cache/
+*.cache
+
+# ============================================================================
+# SEGURIDAD Y CREDENCIALES
+# ============================================================================
+# Variables de entorno
+.env
+.env.local
+.env.*.local
+.envrc
+
+# Secretos
+*.pem
+*.key
+*.cert
+*.crt
+secrets/
+credentials/
+*.credentials
+
+# Tokens y API Keys
+.api_keys
+api_keys.txt
+
+# ============================================================================
+# REPORTES Y DOCUMENTACIÓN GENERADA
+# ============================================================================
+# Reportes generados (si son muchos/grandes)
+reportes_generados/
+*.pdf
+
+# Documentación auto-generada
+docs/_build/
+docs/.build/
+
+# ============================================================================
+# NODE.JS (si usas npm para frontend)
+# ============================================================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+package-lock.json
+yarn.lock
+
+# ============================================================================
+# OTROS
+# ============================================================================
+# Archivos comprimidos grandes
+*.zip
+*.rar
+*.7z
+*.tar
+*.tar.gz
+*.tgz
+
+# Archivos de imagen grandes (opcional, depende si son assets o datos)
+# *.png
+# *.jpg
+# *.jpeg
+# *.gif
+
+# Archivos de video/audio (si no son parte del proyecto)
+*.mp4
+*.avi
+*.mov
+*.mp3
+*.wav
+
+# Archivos de Office (si son temporales)
+~$*.doc*
+~$*.xls*
+~$*.ppt*
+
+# Configuraciones locales específicas
+local_config.py
+config.local.py
+
+# ============================================================================
+# ESPECÍFICO DEL PROYECTO ACADEMICPREDICT
+# ============================================================================
+# Archivos de importación temporal
+temp_imports/
+import_logs/
+
+# Resultados de predicciones (si son archivos grandes)
+predictions/
+prediction_results/
+
+# Gráficos generados (si son muchos)
+# charts/
+# plots/
+
+# Datos de prueba (si son grandes)
+test_data/
+sample_data/
+
+# Scripts de desarrollo temporal
+temp_*.py
+test_*.py
+debug_*.py
+
+# ============================================================================
+# NOTAS IMPORTANTES
+# ============================================================================
+# IMPORTANTE: Si necesitas versionar algún archivo de arriba:
+# 1. Agrégalo como excepción con ! antes del nombre
+# 2. Ejemplo: !mi_archivo_importante.csv
+#
+# ARCHIVOS MUY GRANDES TÍPICOS EN ACADEMICPREDICT:
+# - datasets/*.csv          (decenas/cientos de MB)
+# - media/                  (archivos subidos por usuarios)
+# - models/*.pkl            (modelos ML entrenados, pueden ser GB)
+# - backups/                (backups de BD, pueden ser muy grandes)
+# - temp_uploads/           (archivos temporales de importación)
+#
+# RECOMENDACIÓN: Usa Git LFS para archivos >100MB si necesitas versionarlos
+# ============================================================================

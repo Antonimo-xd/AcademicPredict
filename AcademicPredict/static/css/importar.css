@@ -1,0 +1,233 @@
+/* ============================================
+   ESTILOS IMPORTACIÓN - AcademicPredict
+   ============================================ */
+
+/* Estadísticas pequeñas */
+.stat-card-small {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.stat-card-small:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.stat-icon-small {
+    font-size: 32px;
+    opacity: 0.3;
+}
+
+.stat-card-small.stat-primary .stat-icon-small { color: #667eea; }
+.stat-card-small.stat-success .stat-icon-small { color: #11998e; }
+.stat-card-small.stat-info .stat-icon-small { color: #4facfe; }
+.stat-card-small.stat-warning .stat-icon-small { color: #ffc107; }
+
+.stat-number-small {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.stat-label-small {
+    font-size: 12px;
+    color: #6c757d;
+    margin: 0;
+}
+
+/* Card de Upload */
+.upload-card {
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Zona de Upload */
+.upload-zone {
+    border: 3px dashed #007bff;
+    border-radius: 10px;
+    padding: 40px;
+    text-align: center;
+    background: #f8f9fa;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.upload-zone:hover {
+    border-color: #0056b3;
+    background: #e7f1ff;
+}
+
+.upload-zone.dragging {
+    border-color: #28a745;
+    background: #d4edda;
+}
+
+.upload-icon {
+    font-size: 48px;
+    color: #007bff;
+    margin-bottom: 15px;
+}
+
+.upload-zone h5 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.upload-zone p {
+    color: #6c757d;
+    margin-bottom: 0;
+}
+
+#fileName {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+#fileName i {
+    color: #28a745;
+    font-size: 24px;
+}
+
+#fileNameText {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Botón de Upload */
+.btn-upload {
+    padding: 12px 30px;
+    font-size: 16px;
+    border-radius: 8px;
+}
+
+.btn-upload:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Card de Resultados */
+.results-card {
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.results-card table {
+    margin-bottom: 0;
+}
+
+.results-card th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.results-card td {
+    vertical-align: middle;
+}
+
+/* Reporte Detallado */
+.reporte-detallado {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 15px;
+    max-height: 400px;
+    overflow-y: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    white-space: pre-wrap;
+    border: 1px solid #dee2e6;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.loading-content {
+    background: white;
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.loading-spinner {
+    font-size: 48px;
+    color: #007bff;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.loading-text {
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Progress Bar */
+.upload-progress {
+    margin-top: 20px;
+    display: none;
+}
+
+.progress {
+    height: 30px;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 30px;
+    transition: width 0.3s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .upload-zone {
+        padding: 30px 20px;
+    }
+    
+    .upload-icon {
+        font-size: 36px;
+    }
+    
+    .stat-card-small {
+        margin-bottom: 15px;
+    }
+}
+
+
+
+
+
+

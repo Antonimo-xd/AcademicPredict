@@ -1,0 +1,783 @@
+/* ============================================
+   DASHBOARD ML - ESTILOS CORREGIDOS
+   Mejoras: Contraste, Paginación, Factores
+   ✅ NUEVO: Filtro Inteligente
+   ============================================ */
+
+/* Usa las variables del style.css principal */
+:root {
+    --primary-color: #667eea;
+    --secondary-color: #764ba2;
+    --success-color: #11998e;
+    --danger-color: #f5576c;
+    --warning-color: #ffc107;
+    --info-color: #4facfe;
+}
+
+/* ============================================
+   DASHBOARD HEADER
+   ============================================ */
+
+.dashboard-header {
+    background: white;
+    padding: 25px 0;
+    margin-bottom: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.gradient-icon {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+}
+
+.btn-gradient-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.btn-gradient-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    color: white;
+}
+
+/* ============================================
+   KPIS SECTION
+   ============================================ */
+
+.kpis-section {
+    margin-bottom: 25px;
+}
+
+.kpi-card {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+}
+
+.kpi-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.kpi-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    color: white;
+    flex-shrink: 0;
+}
+
+.kpi-content {
+    flex: 1;
+}
+
+.kpi-value {
+    font-size: 40px !important; 
+    font-weight: 700;
+    margin: 0;
+    color: #2c3e50;
+}
+
+.kpi-label {
+    font-size: 14px;
+    color: #6c757d;
+    margin: 5px 0;
+}
+
+.kpi-percentage {
+    margin-top: 8px;
+}
+
+/* KPI Variants */
+.kpi-danger::before {
+    background: linear-gradient(90deg, var(--danger-color), #ff6b88);
+}
+
+.kpi-danger .kpi-icon {
+    background: linear-gradient(135deg, var(--danger-color), #ff6b88);
+}
+
+.kpi-warning::before {
+    background: linear-gradient(90deg, var(--warning-color), #ffdb4d);
+}
+
+.kpi-warning .kpi-icon {
+    background: linear-gradient(135deg, var(--warning-color), #ffdb4d);
+}
+
+.kpi-info::before {
+    background: linear-gradient(90deg, var(--info-color), #6fcfff);
+}
+
+.kpi-info .kpi-icon {
+    background: linear-gradient(135deg, var(--info-color), #6fcfff);
+}
+
+.kpi-primary::before {
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+}
+
+.kpi-primary .kpi-icon {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+}
+
+/* KPI Success (Riesgo Bajo) */
+.kpi-success::before {
+    background: linear-gradient(90deg, var(--success-color), #38ef7d);
+}
+
+.kpi-success .kpi-icon {
+    background: linear-gradient(135deg, var(--success-color), #38ef7d);
+}
+
+.badge-success-light {
+    background-color: rgba(17, 153, 142, 0.1);
+    color: var(--success-color);
+    padding: 5px 12px;
+    font-weight: 600;
+}
+
+/* Badge Variants */
+.badge-danger-light {
+    background-color: rgba(245, 87, 108, 0.1);
+    color: var(--danger-color);
+    padding: 5px 12px;
+    font-weight: 600;
+}
+
+.badge-warning-light {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: var(--warning-color);
+    padding: 5px 12px;
+    font-weight: 600;
+}
+
+.badge-info-light {
+    background-color: rgba(79, 172, 254, 0.1);
+    color: var(--info-color);
+    padding: 5px 12px;
+    font-weight: 600;
+}
+
+.badge-primary-light {
+    background-color: rgba(102, 126, 234, 0.1);
+    color: var(--primary-color);
+    padding: 5px 12px;
+    font-weight: 600;
+}
+
+/* ============================================
+   ✅ NUEVO: FILTRO INTELIGENTE - BANNER
+   ============================================ */
+
+.alert {
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    animation: fadeInBanner 0.5s ease-in;
+}
+
+@keyframes fadeInBanner {
+    from { 
+        opacity: 0; 
+        transform: translateY(-10px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+/* ============================================
+   ✅ NUEVO: TARJETAS DE RESUMEN RÁPIDO
+   ============================================ */
+
+.card {
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 10px;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.card .btn-sm {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.card .btn-sm:hover {
+    transform: scale(1.05);
+}
+
+.badge {
+    font-size: 0.7rem;
+    padding: 0.35rem 0.6rem;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+/* Bordes de color para tarjetas de prioridad */
+.card.border-danger,
+.card.border-warning,
+.card.border-info,
+.card.border-success {
+    border-width: 1px;
+    border-style: solid;
+}
+
+/* ============================================
+   FILTERS SECTION
+   ============================================ */
+
+.filters-section {
+    margin-bottom: 25px;
+}
+
+.filters-section .card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 10px;
+}
+
+.filter-form .form-label {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 8px;
+}
+
+.filter-form .form-select,
+.filter-form .form-control {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    padding: 10px 15px;
+}
+
+.filter-form .form-select:focus,
+.filter-form .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.export-actions {
+    padding-top: 15px;
+}
+
+/* ============================================
+   STUDENTS TABLE SECTION
+   ============================================ */
+
+.students-section {
+    margin-bottom: 25px;
+}
+
+.students-section .card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 10px;
+}
+
+.students-section .card-header {
+    background: white;
+    border-bottom: 2px solid #f8f9fa;
+    padding: 20px 25px;
+    border-radius: 10px 10px 0 0;
+}
+
+.students-table {
+    margin-bottom: 0;
+}
+
+.students-table thead {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.students-table thead th {
+    border: none;
+    padding: 15px;
+    font-weight: 600;
+    font-size: 14px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.students-table tbody td {
+    padding: 15px 10px;
+    vertical-align: middle;
+    border-bottom: 1px solid #f8f9fa;
+    font-size: 14px;
+}
+
+.student-row {
+    transition: all 0.3s ease;
+}
+
+.student-row:hover {
+    background-color: #f8f9fa;
+}
+
+/* Resaltado por nivel de riesgo */
+.student-row.nivel-critico {
+    background-color: rgba(245, 87, 108, 0.05);
+}
+
+.student-row.nivel-alto {
+    background-color: rgba(255, 193, 7, 0.05);
+}
+
+.student-row.nivel-medio {
+    background-color: rgba(79, 172, 254, 0.05);
+}
+
+/* Avatar Circle */
+.avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+    color: white;
+    flex-shrink: 0;
+}
+
+/* ✅ CORRECCIÓN: Probability Bar con número visible */
+.probability-bar {
+    width: 100%;
+    height: 30px;
+    background-color: #e9ecef;
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid #dee2e6;
+}
+
+.probability-fill {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: width 1s ease-out;
+    position: relative;
+    min-width: 50px; /* Asegura que siempre se vea el texto */
+}
+
+.probability-fill.nivel-critico {
+    background: linear-gradient(90deg, #f5576c, #ff6b88);
+}
+
+.probability-fill.nivel-alto {
+    background: linear-gradient(90deg, #ffc107, #ffdb4d);
+}
+
+.probability-fill.nivel-medio {
+    background: linear-gradient(90deg, #4facfe, #6fcfff);
+}
+
+.probability-fill.nivel-bajo {
+    background: linear-gradient(90deg, #11998e, #38ef7d);
+}
+
+.probability-text {
+    color: white;
+    font-weight: 700;
+    font-size: 13px !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    white-space: nowrap;
+}
+
+/* Badge Nivel */
+.badge-nivel-critico {
+    background: linear-gradient(135deg, #f5576c, #ff6b88);
+    color: white;
+    padding: 6px 12px;
+    font-weight: 600;
+}
+
+.badge-nivel-alto {
+    background: linear-gradient(135deg, #ffc107, #ffdb4d);
+    color: #856404;
+    padding: 6px 12px;
+    font-weight: 600;
+}
+
+.badge-nivel-medio {
+    background: linear-gradient(135deg, #4facfe, #6fcfff);
+    color: white;
+    padding: 6px 12px;
+    font-weight: 600;
+}
+
+.badge-nivel-bajo {
+    background: linear-gradient(135deg, #11998e, #38ef7d);
+    color: white;
+    padding: 6px 12px;
+    font-weight: 600;
+}
+
+/* Empty State */
+.empty-state {
+    padding: 40px 20px;
+}
+
+.empty-state i {
+    opacity: 0.3;
+}
+
+/* ============================================
+   ✅ PAGINACIÓN MEJORADA - MEJOR CONTRASTE
+   ============================================ */
+
+.card-footer {
+    border-top: 1px solid #dee2e6;
+    padding: 15px 25px;
+}
+
+.pagination {
+    margin-bottom: 0;
+}
+
+.pagination .page-link {
+    border-radius: 8px;
+    margin: 0 3px;
+    border: 2px solid #dee2e6;
+    color: #667eea;
+    font-weight: 600;
+    padding: 8px 12px;
+    background-color: white;
+    transition: all 0.3s;
+}
+
+.pagination .page-item.active .page-link {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.pagination .page-link:hover {
+    background-color: rgba(102, 126, 234, 0.1);
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+/* ============================================
+   LOADING MODAL
+   ============================================ */
+
+.modal-content {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+
+.spinner-border {
+    animation: spinner-border 0.75s linear infinite;
+}
+
+/* ============================================
+   ✅ DETALLE ESTUDIANTE - FACTORES MEJORADOS
+   ============================================ */
+
+.detail-card {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.detail-header {
+    border-bottom: 2px solid #f8f9fa;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.risk-badge-large {
+    font-size: 18px;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: 700;
+}
+
+.metric-item {
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    border: 2px solid #e9ecef;
+}
+
+.metric-item h3 {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.metric-item small {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ✅ FACTORES - COLORES MÁS FUERTES Y VISIBLES */
+.factor-item {
+    padding: 20px;
+    border-left: 5px solid;
+    margin-bottom: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: 1px solid #dee2e6;
+}
+
+.factor-alto {
+    border-left-color: #f5576c;
+    background: rgba(245, 87, 108, 0.08);
+}
+
+.factor-medio {
+    border-left-color: #4facfe;
+    background: rgba(79, 172, 254, 0.08);
+}
+
+.factor-bajo {
+    border-left-color: #11998e;
+    background: rgba(17, 153, 142, 0.08);
+}
+
+.factor-item h6 {
+    font-weight: 700;
+    color: #2c3e50;
+    font-size: 15px;
+}
+
+.factor-item .text-muted {
+    color: #6c757d !important;
+}
+
+.factor-item strong {
+    color: #2c3e50;
+    font-size: 16px;
+}
+
+/* Badges con más contraste */
+.badge.bg-alto {
+    background-color: #f5576c !important;
+    color: white;
+}
+
+.badge.bg-medio {
+    background-color: #4facfe !important;
+    color: white;
+}
+
+.badge.bg-bajo {
+    background-color: #11998e !important;
+    color: white;
+}
+
+/* Tendencias */
+.tendencia-icon {
+    font-size: 28px;
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.tendencia-mejorando { 
+    color: #11998e;
+    font-weight: bold;
+}
+
+.tendencia-empeorando { 
+    color: #f5576c;
+    font-weight: bold;
+}
+
+.tendencia-estable { 
+    color: #6c757d;
+    font-weight: bold;
+}
+
+/* ============================================
+   GRÁFICOS
+   ============================================ */
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    margin: 20px 0;
+}
+
+/* ============================================
+   TOOLTIPS EXPLICATIVOS
+   ============================================ */
+
+.info-tooltip {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    background: var(--info-color);
+    color: white;
+    border-radius: 50%;
+    text-align: center;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: help;
+    margin-left: 5px;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+    .kpi-value {
+        font-size: 28px;
+    }
+    
+    .kpi-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+    }
+    
+    .page-title {
+        font-size: 22px;
+    }
+    
+    .students-table {
+        font-size: 13px;
+    }
+    
+    .students-table thead th {
+        padding: 10px 5px;
+        font-size: 11px;
+    }
+    
+    .students-table tbody td {
+        padding: 10px 5px;
+    }
+    
+    .probability-text {
+        font-size: 11px;
+    }
+    
+    /* ✅ NUEVO: Responsive para tarjetas */
+    .card .card-body h3 {
+        font-size: 1.5rem;
+    }
+    
+    .alert h5 {
+        font-size: 1rem;
+    }
+    
+    .alert .btn-sm {
+        font-size: 0.7rem;
+    }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+    .dashboard-header,
+    .filters-section,
+    .btn,
+    .pagination,
+    .alert {
+        display: none;
+    }
+    
+    .students-table {
+        font-size: 10px;
+    }
+    
+    .detail-card {
+        page-break-inside: avoid;
+    }
+}

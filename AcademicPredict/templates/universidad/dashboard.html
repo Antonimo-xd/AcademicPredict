@@ -1,0 +1,426 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Dashboard - AcademicPredict{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard_filtros.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>
+                <i class="fas fa-chart-bar me-2"></i>
+                Dashboard Universidad
+            </h2>
+
+            {% if user.perfil.rol == 'coordinador_carrera' and user.perfil.carrera_asignada %}
+            <div class="alert alert-info">
+                <i class="fas fa-filter me-2"></i>
+                <strong>Vista filtrada:</strong> Mostrando solo estudiantes de 
+                {{ user.perfil.carrera_asignada.nombre }}
+            </div>
+            {% endif %}
+
+            <p class="text-muted mb-0">
+                Análisis de deserción universitaria
+            </p>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- 🔍 SECCIÓN: FILTROS INTERACTIVOS                                 -->
+    <!-- ================================================================ -->
+    
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="filtros-section">
+                <h4>
+                    <i class="fas fa-filter me-2"></i>
+                    Filtros del Dashboard
+                </h4>
+                
+                <div class="filtros-grid">
+                    <!-- Filtro: Año Académico -->
+                    <div class="filtro-group">
+                        <label for="filtroAnioAcademico">
+                            <i class="fas fa-calendar"></i>
+                            Año Académico
+                        </label>
+                        <select id="filtroAnioAcademico" class="form-select">
+                            <option value="todos">Todos los años</option>
+                            {% for anio in anios_disponibles %}
+                            <option value="{{ anio }}">{{ anio }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Filtro: Carrera -->
+                    <div class="filtro-group">
+                        <label for="filtroCarrera">
+                            <i class="fas fa-graduation-cap"></i>
+                            Carrera
+                        </label>
+                        <select id="filtroCarrera" class="form-select">
+                            <option value="todas">Todas las carreras</option>
+                            {% for carrera in carreras_disponibles %}
+                            <option value="{{ carrera.codigo_carrera }}">{{ carrera.codigo_carrera }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Filtro: Campus -->
+                    <div class="filtro-group">
+                        <label for="filtroCampus">
+                            <i class="fas fa-university"></i>
+                            Campus
+                        </label>
+                        <select id="filtroCampus" class="form-select">
+                            <option value="todos">Todos los campus</option>
+                            {% for campus in campus_disponibles %}
+                            <option value="{{ campus }}">{{ campus }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Filtro: Dedicación -->
+                    <div class="filtro-group">
+                        <label for="filtroDedicacion">
+                            <i class="fas fa-clock"></i>
+                            Dedicación
+                        </label>
+                        <select id="filtroDedicacion" class="form-select">
+                            <option value="todas">Todas</option>
+                            <option value="TiempoCompleto">Tiempo Completo</option>
+                            <option value="TiempoParcial">Tiempo Parcial</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Botones de acción -->
+                <div class="filtros-buttons">
+                    <button type="button" class="btn-filtrar" id="btnAplicarFiltros">
+                        <i class="fas fa-search me-2"></i>
+                        Aplicar Filtros
+                    </button>
+                    <button type="button" class="btn-limpiar" id="btnLimpiarFiltros">
+                        <i class="fas fa-times me-2"></i>
+                        Limpiar Filtros
+                    </button>
+                </div>
+                
+                <!-- Indicador de filtros activos -->
+                <div id="filtrosActivos" class="d-none"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay de carga -->
+    <div class="dashboard-loading" id="dashboardLoading">
+        <div class="loading-content">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+            </div>
+            <div class="loading-text">Actualizando dashboard...</div>
+            <small class="text-muted">Por favor espera un momento</small>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- 📊 SECCIÓN 1: MÉTRICAS GENERALES (KPIs)                        -->
+    <!-- ================================================================ -->
+    <div class="row mb-4">
+        <div class="col-12 mb-3">
+            <h4><i class="fas fa-tachometer-alt me-2"></i>Métricas Generales</h4>
+        </div>
+        
+        <!-- KPI 1: Total Estudiantes -->
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="kpi-card kpi-primary">
+                <div class="kpi-icon">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <div class="kpi-content">
+                    <h3 class="kpi-number" id="kpiEstudiantes">{{ total_estudiantes|intcomma }}</h3>
+                    <p class="kpi-label">Total Estudiantes</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI 2: Tasa de Abandono -->
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="kpi-card kpi-danger">
+                <div class="kpi-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="kpi-content">
+                    <h3 class="kpi-number" id="kpiTasaAbandono">{{ tasa_abandono|floatformat:2 }}%</h3>
+                    <p class="kpi-label">Tasa de Abandono</p>
+                    <small class="text-muted" id="kpiAbandonos">{{ total_abandonos|intcomma }} estudiantes</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI 3: Promedio de Créditos -->
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="kpi-card kpi-success">
+                <div class="kpi-icon">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <div class="kpi-content">
+                    <h3 class="kpi-number" id="kpiCreditos">{{ promedio_creditos|floatformat:1 }}</h3>
+                    <p class="kpi-label">Promedio de Créditos</p>
+                    <small class="text-muted">Aprobados por año</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI 4: Total Carreras -->
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="kpi-card kpi-info">
+                <div class="kpi-icon">
+                    <i class="fas fa-university"></i>
+                </div>
+                <div class="kpi-content">
+                    <h3 class="kpi-number" id="kpiCarreras">{{ total_carreras|intcomma }}</h3>
+                    <p class="kpi-label">Carreras Activas</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- 📈 SECCIÓN 2: GRÁFICOS DE ABANDONO                             -->
+    <!-- ================================================================ -->
+    <div class="row mb-4">
+        <div class="col-12 mb-3">
+            <h4><i class="fas fa-chart-pie me-2"></i>Análisis de Abandono</h4>
+        </div>
+        
+        <!-- Gráfico 1: Pie Chart - Abandono vs Activos -->
+        <div class="col-lg-4 mb-3">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h5>
+                        <i class="fas fa-chart-pie me-2"></i>
+                        Distribución de Abandono
+                    </h5>
+                </div>
+                <div class="chart-body">
+                    <canvas id="chartAbandonoPie"></canvas>
+                </div>
+                <div class="chart-footer">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Proporción de estudiantes activos vs abandonos
+                    </small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Gráfico 2: Line Chart - Abandono por Año -->
+        <div class="col-lg-8 mb-3">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h5>
+                        <i class="fas fa-chart-line me-2"></i>
+                        Evolución del Abandono por Año de Ingreso
+                    </h5>
+                </div>
+                <div class="chart-body">
+                    <canvas id="chartAbandonoAnio"></canvas>
+                </div>
+                <div class="chart-footer">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Tendencia de abandono según año de ingreso a la universidad
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráfico 3: Bar Chart - Abandono por Carrera (Top 10) -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h5>
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Top 10 Carreras con Mayor Abandono
+                    </h5>
+                </div>
+                <div class="chart-body">
+                    <canvas id="chartAbandonoCarrera"></canvas>
+                </div>
+                <div class="chart-footer">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Carreras con mayor número absoluto de abandonos
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- 📉 SECCIÓN 3: DISTRIBUCIÓN ACADÉMICA                           -->
+    <!-- ================================================================ -->
+    <div class="row mb-4">
+        <div class="col-12 mb-3">
+            <h4><i class="fas fa-chart-area me-2"></i>Distribución Académica</h4>
+        </div>
+        
+        <!-- Gráfico 4: Histograma - Distribución de Rendimiento -->
+        <div class="col-lg-6 mb-3">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h5>
+                        <i class="fas fa-chart-area me-2"></i>
+                        Distribución de Rendimiento Académico
+                    </h5>
+                </div>
+                <div class="chart-body">
+                    <canvas id="chartRendimiento"></canvas>
+                </div>
+                <div class="chart-footer">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Porcentaje de créditos aprobados vs matriculados (solo registros con rendimiento > 0%)
+                    </small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Gráfico 5: Bar Chart - Top 10 Asignaturas -->
+        <div class="col-lg-6 mb-3">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h5>
+                        <i class="fas fa-book me-2"></i>
+                        Top 10 Asignaturas Más Cursadas
+                    </h5>
+                </div>
+                <div class="chart-body">
+                    <canvas id="chartTopAsignaturas"></canvas>
+                </div>
+                <div class="chart-footer">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Asignaturas con mayor número de estudiantes matriculados
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- 🎯 SECCIÓN 4: FILTROS INTERACTIVOS (PRÓXIMAMENTE)             -->
+    <!-- ================================================================ -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info" role="alert">
+                <h5 class="alert-heading">
+                    <i class="fas fa-filter me-2"></i>Filtros Interactivos (Próximamente)
+                </h5>
+                <p>En la próxima versión podrás filtrar el dashboard por:</p>
+                <ul class="mb-0">
+                    <li>Año académico específico</li>
+                    <li>Carrera universitaria</li>
+                    <li>Campus</li>
+                    <li>Tipo de dedicación (tiempo completo/parcial)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- ℹ️ SECCIÓN 5: INFORMACIÓN DEL DASHBOARD                        -->
+    <!-- ================================================================ -->
+    <div class="row">
+        <div class="col-12">
+            <div class="info-card">
+                <h5><i class="fas fa-question-circle me-2"></i>¿Cómo interpretar este dashboard?</h5>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <h6>📊 Métricas Generales (KPIs)</h6>
+                        <p>
+                            Los indicadores clave de desempeño muestran un resumen rápido del estado actual:
+                        </p>
+                        <ul>
+                            <li><strong>Total Estudiantes:</strong> Número total de estudiantes registrados</li>
+                            <li><strong>Tasa de Abandono:</strong> Porcentaje de estudiantes que han abandonado</li>
+                            <li><strong>Promedio de Créditos:</strong> Media de créditos aprobados por año (solo registros con créditos > 0)</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>📈 Gráficos de Abandono</h6>
+                        <p>
+                            Permiten identificar patrones y tendencias:
+                        </p>
+                        <ul>
+                            <li><strong>Pie Chart:</strong> Proporción de abandonos vs activos</li>
+                            <li><strong>Line Chart:</strong> Evolución temporal del abandono (excluye año 0)</li>
+                            <li><strong>Bar Chart:</strong> Carreras más afectadas</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="alert alert-warning mt-3 mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    <strong>Tip:</strong> Este dashboard es la base para el análisis exploratorio. 
+                    Los modelos de Machine Learning se entrenarán después usando estos datos.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Pasar datos de Django a JavaScript -->
+<script>
+    // 📊 EXPLICACIÓN EDUCATIVA:
+    // Django genera HTML en el servidor, pero Chart.js necesita los datos en JavaScript.
+    // Usamos el filtro |safe para que Django no escape los caracteres JSON.
+    
+    // Datos para Pie Chart (Abandono vs Activos)
+    const abandonoLabels = {{ abandono_labels|safe }};
+    const abandonoData = {{ abandono_data|safe }};
+    
+    // Datos para Line Chart (Abandono por Año)
+    const abandonoAnioLabels = {{ abandono_anio_labels|safe }};
+    const abandonoAnioData = {{ abandono_anio_data|safe }};
+    
+    // Datos para Bar Chart (Abandono por Carrera)
+    const abandonoCarreraLabels = {{ abandono_carrera_labels|safe }};
+    const abandonoCarreraData = {{ abandono_carrera_data|safe }};
+    
+    // Datos para Histograma (Rendimiento)
+    const rendimientoLabels = {{ rendimiento_labels|safe }};
+    const rendimientoData = {{ rendimiento_data|safe }};
+    
+    // Datos para Bar Chart (Top Asignaturas)
+    const topAsignaturasLabels = {{ top_asignaturas_labels|safe }};
+    const topAsignaturasData = {{ top_asignaturas_data|safe }};
+</script>
+<script src="{% static 'js/dashboard_filtros.js' %}"></script>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+

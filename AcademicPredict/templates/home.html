@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Inicio - AcademicPredict{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/alertas.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="welcome-card">
+                <h2 class="mb-2">
+                    <i class="fas fa-home me-2"></i>
+                    Bienvenido, {{ user.get_full_name|default:user.username }}
+                </h2>
+                <p class="text-muted mb-0">
+                    <span class="badge bg-primary me-2">{{ user.perfil.get_rol_display|default:'Usuario' }}</span>
+                    Sistema de Predicción de Deserción Universitaria con Machine Learning
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Banner de Alertas Pendientes (COLAPSABLE) -->
+    {% if alertas_pendientes > 0 %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alerta-banner-home" id="alertasBannerHome">
+                <button type="button" class="btn-close" aria-label="Cerrar"></button>
+                
+                <div class="alerta-banner-content">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-bell fa-3x text-danger"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h5 class="mb-2 text-danger">
+                                <strong>¡Atención! Tienes {{ alertas_pendientes }} alerta{{ alertas_pendientes|pluralize }} pendiente{{ alertas_pendientes|pluralize }}</strong>
+                            </h5>
+                            <p class="text-muted mb-0">
+                                {% if alertas_criticas > 0 %}
+                                    <span class="badge bg-danger me-2">{{ alertas_criticas }} Crítica{{ alertas_criticas|pluralize }}</span>
+                                {% endif %}
+                                {% if alertas_altas > 0 %}
+                                    <span class="badge bg-warning text-dark me-2">{{ alertas_altas }} Alta{{ alertas_altas|pluralize }}</span>
+                                {% endif %}
+                                Estudiantes requieren intervención inmediata.
+                            </p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <a href="{% url 'alertas:dashboard' %}" class="btn btn-danger">
+                                <i class="fas fa-arrow-right me-2"></i>
+                                Ver Alertas
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Estadisticas Principales -->
+    <div class="row mb-4">
+        <div class="col-12 mb-3">
+            <h4><i class="fas fa-database me-2"></i>Estado de la Base de Datos</h4>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stat-card stat-primary">
+                <div class="stat-icon">
+                    <i class="fas fa-university"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">{{ total_carreras|default:0 }}</h3>
+                    <p class="stat-label">Carreras</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stat-card stat-success">
+                <div class="stat-icon">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">{{ total_estudiantes|default:0 }}</h3>
+                    <p class="stat-label">Estudiantes</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stat-card stat-info">
+                <div class="stat-icon">
+                    <i class="fas fa-book"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">{{ total_asignaturas|default:0 }}</h3>
+                    <p class="stat-label">Asignaturas</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stat-card stat-warning">
+                <div class="stat-icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">{{ total_registros|default:0 }}</h3>
+                    <p class="stat-label">Registros Academicos</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones Rapidas -->
+    <div class="row mb-4">
+        <div class="col-12 mb-3">
+            <h4><i class="fas fa-bolt me-2"></i>Acciones Rapidas</h4>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-file-upload"></i>
+                </div>
+                <h5>Importar Datos</h5>
+                <p>Sube tu archivo CSV con los datos universitarios (77 variables)</p>
+                <a href="{% url 'importar_datos_universidad' %}" class="btn btn-primary">
+                    <i class="fas fa-arrow-right me-2"></i>Ir a Importacion
+                </a>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h5>Dashboard Basico</h5>
+                <p>Visualiza estadisticas y analisis de desercion</p>
+                <a href="{% url 'dashboard_universidad' %}" class="btn btn-primary">
+                    <i class="fas fa-arrow-right me-2"></i>Ver Dashboard
+                </a>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h5>Dashboard Avanzado</h5>
+                <p>Analisis estadisticos avanzados con heatmaps y box plots</p>
+                <a href="{% url 'dashboard_avanzado' %}" class="btn btn-success">
+                    <i class="fas fa-arrow-right me-2"></i>Ver Analisis
+                </a>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="action-card-alertas">
+                <div class="action-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <h5>Sistema de Alertas</h5>
+                <p>Gestiona alertas y seguimiento de estudiantes en riesgo</p>
+                <a href="{% url 'alertas:dashboard' %}" class="btn btn-danger">
+                    <i class="fas fa-arrow-right me-2"></i>Ver Alertas
+                </a>
+            </div>
+        </div>
+
+        <!-- Dashboard ML -->
+        <div class="col-md-3 mb-3">
+            <div class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h5>Dashboard ML</h5>
+                <p>Sistema de deteccion de desercion con Machine Learning</p>
+                <a href="{% url 'ml:dashboard_ml' %}" class="btn btn-warning">
+                    <i class="fas fa-arrow-right me-2"></i>Ver Predicciones
+                </a>
+            </div>
+        </div>
+
+
+        {% if user.perfil.rol == 'analista' %}
+        <div class="col-md-3 mb-3">
+            <div class="action-card" style="border-left: 4px solid #dc3545;">
+                <div class="action-icon" style="color: #dc3545;">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <h5>Mis Casos Asignados</h5>
+                <p>Revisa y gestiona los estudiantes asignados a ti</p>
+                {% if casos_pendientes > 0 %}
+                <div class="alert alert-danger py-2 mb-2">
+                    <strong>{{ casos_pendientes }}</strong> caso{{ casos_pendientes|pluralize }} pendiente{{ casos_pendientes|pluralize }}
+                </div>
+                {% endif %}
+                <a href="{% url 'mis_casos_asignados' %}" class="btn btn-danger">
+                    <i class="fas fa-arrow-right me-2"></i>Ver Mis Casos
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+    </div>
+    <!-- Información del Sistema -->
+    <div class="row">
+        <div class="col-12">
+            <div class="info-card">
+                <h5><i class="fas fa-info-circle me-2"></i>Información del Sistema</h5>
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <h6 class="text-primary">Base de Datos</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i><strong>Modelos:</strong> 10 modelos Django</li>
+                            <li><i class="fas fa-check text-success me-2"></i><strong>Variables:</strong> 77 variables por registro</li>
+                            <li><i class="fas fa-database text-primary me-2"></i><strong>BD:</strong> MySQL/phpMyAdmin</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="text-success">Machine Learning</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-robot text-info me-2"></i><strong>Isolation Forest:</strong> Detección de anomalías</li>
+                            <li><i class="fas fa-brain text-warning me-2"></i><strong>XGBoost:</strong> Predicción de deserción</li>
+                            <li><i class="fas fa-chart-line text-success me-2"></i><strong>Regresión:</strong> Rendimiento futuro</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="text-danger">Sistema de Alertas</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-bell text-danger me-2"></i><strong>Alertas automáticas</strong> por riesgo</li>
+                            <li><i class="fas fa-envelope text-info me-2"></i><strong>Seguimiento</strong> individualizado</li>
+                            <li><i class="fas fa-user-check text-success me-2"></i><strong>Intervenciones</strong> Registradas</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="alert alert-success mb-0" role="alert">
+                            <i class="fas fa-shield-alt me-2"></i><strong>Estado del Sistema:</strong> 
+                            {% if total_registros > 0 %}
+                                <span class="badge bg-success">Operacional - Con datos</span>
+                                {% if total_alertas > 0 %}
+                                <span class="badge bg-danger ms-2">
+                                    <i class="fas fa-bell me-1"></i>{{ total_alertas }} Alertas Activas
+                                </span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Listo - Esperando datos</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Guía de Inicio (solo si no hay datos) -->
+    {% if total_registros == 0 %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="alert alert-warning" role="alert">
+                <h5 class="alert-heading">
+                    <i class="fas fa-lightbulb me-2"></i>Guía de Inicio Rápido
+                </h5>
+                <p>Tu sistema está listo pero aún no tiene datos. Sigue estos pasos:</p>
+                <ol class="mb-0">
+                    <li>Prepara tu archivo CSV con las 77 variables del dataset universitario</li>
+                    <li>Ve a <a href="{% url 'importar_datos_universidad' %}" class="alert-link">Importar Datos</a></li>
+                    <li>Sube tu archivo CSV</li>
+                    <li>Espera a que se complete la importación (~8-10 minutos para 460k registros)</li>
+                    <li>Una vez importado, podrás:
+                        <ul>
+                            <li>Ver estadísticas en el <a href="{% url 'dashboard_universidad' %}" class="alert-link">Dashboard Básico</a></li>
+                            <li>Analizar datos en el <a href="{% url 'dashboard_avanzado' %}" class="alert-link">Dashboard Avanzado</a></li>
+                            <li>Ejecutar modelos ML para generar predicciones</li>
+                            <li>Sistema de alertas comenzará a funcionar automáticamente</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+</div>
+{% endblock %}

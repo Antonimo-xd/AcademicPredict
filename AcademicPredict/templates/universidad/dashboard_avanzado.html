@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Dashboard Avanzado - AcademicPredict{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard_avanzado.css' %}">
+<!-- Plotly.js para visualizaciones avanzadas -->
+<script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- ================================================================ -->
+    <!-- 📊 HEADER                                                         -->
+    <!-- ================================================================ -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2>
+                        <i class="fas fa-chart-line me-2"></i>
+                        Dashboard Avanzado - Análisis Estadístico
+                    </h2>
+                    <p class="text-muted mb-0">
+                        Visualizaciones estadísticas avanzadas y análisis de correlaciones
+                    </p>
+                </div>
+                <div>
+                    {% if user.perfil.rol == 'coordinador_carrera' and user.perfil.carrera_asignada %}
+                    <div class="alert alert-info mb-2">
+                        <i class="fas fa-filter me-2"></i>
+                        <strong>Vista filtrada:</strong> Mostrando solo datos de 
+                        {{ user.perfil.carrera_asignada.nombre }}
+                    </div>
+                    {% endif %}
+                    
+                    <a href="{% url 'dashboard_universidad' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        Volver al Dashboard Básico
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- 📈 SECCIÓN 1: HEATMAP DE CORRELACIONES                            -->
+    <!-- ================================================================ -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h5>
+                        <i class="fas fa-th me-2"></i>
+                        Matriz de Correlaciones
+                    </h5>
+                </div>
+                <div class="chart-body">
+                    <div id="heatmapCorrelaciones"></div>
+                </div>
+                <div class="chart-footer">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        La matriz muestra correlaciones de Pearson entre pares de variables.
+                        Valores cercanos a 1 o -1 indican fuerte relación.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- 📦 SECCIÓN 2: BOX PLOTS POR GRUPO                                 -->
+    <!-- ================================================================ -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h5>
+                        <i class="fas fa-box me-2"></i>
+                        Distribución de Rendimiento por Año de Ingreso
+                    </h5>
+                </div>
+                <div class="chart-body">
+                    <div id="boxPlotRendimiento"></div>
+                </div>
+                <div class="chart-footer">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Los box plots comparan la distribución del rendimiento académico
+                        entre diferentes cohortes de ingreso.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- 📈 SECCIÓN 3: SERIES TEMPORALES                                   -->
+    <!-- ================================================================ -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h5>
+                        <i class="fas fa-chart-line me-2"></i>
+                        Evolución Temporal de la Tasa de Abandono
+                    </h5>
+                </div>
+                <div class="chart-body">
+                    <canvas id="chartSerieTemporal"></canvas>
+                </div>
+                <div class="chart-footer">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Tendencia de abandono por año de ingreso.
+                        Línea de tendencia ayuda a visualizar la dirección general.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- 👥 SECCIÓN 4: ANÁLISIS DE PERFILES                                -->
+    <!-- ================================================================ -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h5>
+                        <i class="fas fa-users me-2"></i>
+                        Perfiles de Estudiantes
+                    </h5>
+                </div>
+                <div class="chart-body">
+                    <canvas id="chartPerfiles"></canvas>
+                </div>
+                <div class="chart-footer">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Segmentación por rendimiento académico y actividad en LMS
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="info-card">
+                <h5><i class="fas fa-lightbulb me-2"></i>Interpretación de Perfiles</h5>
+                
+                <div class="perfil-item">
+                    <span class="badge bg-success me-2">Alto Rendimiento + Activo</span>
+                    <p class="mb-2">
+                        <strong>Características:</strong> Excelente desempeño académico 
+                        combinado con alta participación en LMS.
+                    </p>
+                    <p class="text-muted small mb-0">
+                        <strong>Acción:</strong> Mantener motivación. Considerar como 
+                        tutores o mentores.
+                    </p>
+                </div>
+
+                <hr>
+
+                <div class="perfil-item">
+                    <span class="badge bg-info me-2">Alto Rendimiento + Pasivo</span>
+                    <p class="mb-2">
+                        <strong>Características:</strong> Buen rendimiento pero baja 
+                        interacción con recursos digitales.
+                    </p>
+                    <p class="text-muted small mb-0">
+                        <strong>Acción:</strong> Incentivar uso de LMS. Pueden beneficiarse 
+                        de recursos adicionales.
+                    </p>
+                </div>
+
+                <hr>
+
+                <div class="perfil-item">
+                    <span class="badge bg-warning me-2">Bajo Rendimiento + Activo</span>
+                    <p class="mb-2">
+                        <strong>Características:</strong> Rendimiento bajo a pesar de 
+                        alta participación.
+                    </p>
+                    <p class="text-muted small mb-0">
+                        <strong>Acción:</strong> Necesitan apoyo académico específico. 
+                        Tutorías o talleres de habilidades de estudio.
+                    </p>
+                </div>
+
+                <hr>
+
+                <div class="perfil-item">
+                    <span class="badge bg-danger me-2">Bajo Rendimiento + Pasivo</span>
+                    <p class="mb-2">
+                        <strong>Características:</strong> Rendimiento bajo y poca 
+                        participación digital.
+                    </p>
+                    <p class="text-muted small mb-0">
+                        <strong>Acción:</strong> ⚠️ PRIORIDAD ALTA. Intervención 
+                        inmediata. Riesgo crítico de abandono.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div class="row mb-4">
+        <div class="col mb-3">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h5>
+                        <i class="fas fa-users me-2"></i>
+                        Perfiles de Estudiantes
+                    </h5>
+    <!-- ================================================================ -->
+    <!-- ℹ️ SECCIÓN 5: INFORMACIÓN SOBRE EL ANÁLISIS                      -->
+    <!-- ================================================================ -->
+    <div class="row">
+        <div class="col-12">
+            <div class="info-card">
+                <h5><i class="fas fa-graduation-cap me-2"></i>Conceptos Estadísticos Aplicados</h5>
+                
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <h6>📊 Correlación de Pearson</h6>
+                        <p class="small">
+                            Mide la relación lineal entre dos variables continuas.
+                            Rango: -1 (correlación negativa perfecta) a +1 (correlación positiva perfecta).
+                        </p>
+                        <p class="small text-muted">
+                            <strong>Fórmula:</strong> r = Σ[(xi - x̄)(yi - ȳ)] / √[Σ(xi - x̄)² Σ(yi - ȳ)²]
+                        </p>
+                    </div>
+
+                    <div class="col-md-4">
+                        <h6>📦 Estadísticos del Box Plot</h6>
+                        <p class="small">
+                            <strong>Q1 (Percentil 25):</strong> 25% de datos están debajo<br>
+                            <strong>Mediana (Q2):</strong> Valor central<br>
+                            <strong>Q3 (Percentil 75):</strong> 75% de datos están debajo<br>
+                            <strong>IQR:</strong> Q3 - Q1 (rango intercuartílico)
+                        </p>
+                    </div>
+
+                    <div class="col-md-4">
+                        <h6>👥 Clustering</h6>
+                        <p class="small">
+                            Técnica de segmentación que agrupa elementos similares.
+                            Permite identificar patrones y crear perfiles de estudiantes.
+                        </p>
+                        <p class="small text-muted">
+                            <strong>Aplicación:</strong> Intervenciones personalizadas según perfil.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-3 mb-0">
+                    <i class="fas fa-book-reader me-2"></i>
+                    <strong>Para aprender más:</strong> Estos análisis estadísticos te permiten
+                    tomar decisiones basadas en datos (Data-Driven Decision Making). Considera
+                    estudiar más sobre estadística inferencial y aprendizaje automático.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Pasar datos de Django a JavaScript -->
+<script>
+    // 📊 Datos para Heatmap de Correlaciones
+    const matrizCorrelacion = {{ matriz_correlacion|safe }};
+    const variablesLabels = {{ variables_labels|safe }};
+    
+    // 📦 Datos para Box Plots
+    const boxPlotData = {{ box_plot_data|safe }};
+    
+    // 📈 Datos para Series Temporales
+    const serieTemporal = {{ serie_temporal|safe }};
+    
+    // 👥 Datos para Perfiles
+    const perfilesLabels = {{ perfiles_labels|safe }};
+    const perfilesData = {{ perfiles_data|safe }};
+</script>
+
+<script src="{% static 'js/dashboard_avanzado.js' %}?v=333"></script>
+{% endblock %}
+
+
+
+
+
+

@@ -1,0 +1,343 @@
+/* ============================================
+   DASHBOARD_AVANZADO.CSS - VERSION CORREGIDA
+   Estilos para visualizaciones estadisticas
+   ============================================ */
+
+/* ============================================
+   ESTILOS ADICIONALES PARA HEATMAP
+   ============================================ */
+
+#heatmapCorrelaciones {
+    min-height: 500px;
+    width: 100%;
+    background: #fafafa;
+    border-radius: 8px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.plotly .hoverlayer .hovertext {
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+}
+
+/* ============================================
+   ESTILOS PARA BOX PLOTS
+   ============================================ */
+
+#boxPlotRendimiento {
+    min-height: 450px;
+    width: 100%;
+    background: #fafafa;
+    border-radius: 8px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* ============================================
+   PERFIL ITEMS (Tarjetas de explicacion)
+   ============================================ */
+
+.perfil-item {
+    padding: 15px;
+    background: #f8f9fa;
+    border-left: 4px solid #667eea;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.perfil-item:hover {
+    background: #e9ecef;
+    transform: translateX(5px);
+}
+
+.perfil-item .badge {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 12px;
+}
+
+.perfil-item p {
+    margin: 8px 0;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.perfil-item strong {
+    color: #2c3e50;
+}
+
+/* ============================================
+   INDICADORES DE RIESGO
+   ============================================ */
+
+.badge.bg-success {
+    background: linear-gradient(135deg, #11998e, #38ef7d) !important;
+}
+
+.badge.bg-info {
+    background: linear-gradient(135deg, #4facfe, #00f2fe) !important;
+}
+
+.badge.bg-warning {
+    background: linear-gradient(135deg, #ffc107, #ff9800) !important;
+}
+
+.badge.bg-danger {
+    background: linear-gradient(135deg, #f5576c, #f093fb) !important;
+}
+
+/* ============================================
+   SECCION DE CONCEPTOS ESTADISTICOS
+   CORRECCION: Agregar efecto hover
+   ============================================ */
+
+.info-card {
+    transition: all 0.3s ease;
+    cursor: default;
+}
+
+.info-card:hover {
+    background: #f8f9fa;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+}
+
+.info-card h6 {
+    color: #667eea;
+    font-weight: 700;
+    margin-bottom: 12px;
+    font-size: 15px;
+}
+
+.info-card .small {
+    font-size: 13px;
+    line-height: 1.8;
+    color: #495057;
+}
+
+.info-card .text-muted {
+    font-size: 12px;
+    color: #6c757d !important;
+}
+
+.info-card code {
+    background: #f8f9fa;
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: #e83e8c;
+    font-size: 12px;
+}
+
+/* ============================================
+   BOTON VOLVER
+   ============================================ */
+
+.btn-outline-primary {
+    border-width: 2px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* ============================================
+   AJUSTES DE ESPACIADO
+   ============================================ */
+
+.chart-card {
+    margin-bottom: 25px;
+}
+
+.chart-header {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    padding: 20px 25px;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.chart-header h5 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.chart-header h5 i {
+    color: #667eea;
+    margin-right: 8px;
+}
+
+.chart-body {
+    padding: 30px 25px;
+    min-height: 400px;
+}
+
+.chart-footer {
+    background: #f8f9fa;
+    padding: 15px 25px;
+    border-top: 1px solid #e9ecef;
+}
+
+.chart-footer small {
+    font-size: 13px;
+    color: #6c757d;
+}
+
+.chart-footer small i {
+    color: #667eea;
+}
+
+/* ============================================
+   ALERTA DE INFORMACION
+   ============================================ */
+
+.alert-info {
+    background: linear-gradient(135deg, #e7f1ff, #d0e9ff);
+    border: none;
+    border-left: 4px solid #667eea;
+    color: #2c3e50;
+}
+
+.alert-info i {
+    color: #667eea;
+}
+
+.alert-info strong {
+    color: #2c3e50;
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 768px) {
+    .chart-body {
+        padding: 20px 15px;
+        min-height: 300px;
+    }
+    
+    #heatmapCorrelaciones,
+    #boxPlotRendimiento {
+        min-height: 350px;
+        padding: 10px;
+    }
+    
+    .perfil-item {
+        padding: 12px;
+    }
+    
+    .info-card h6 {
+        font-size: 14px;
+    }
+    
+    .info-card .small {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 576px) {
+    .chart-header h5 {
+        font-size: 15px;
+    }
+    
+    .chart-body {
+        padding: 15px 10px;
+        min-height: 250px;
+    }
+    
+    .perfil-item p {
+        font-size: 13px;
+    }
+}
+
+/* ============================================
+   ANIMACIONES
+   ============================================ */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.chart-card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.chart-card:nth-child(1) { animation-delay: 0.1s; }
+.chart-card:nth-child(2) { animation-delay: 0.2s; }
+.chart-card:nth-child(3) { animation-delay: 0.3s; }
+.chart-card:nth-child(4) { animation-delay: 0.4s; }
+
+.info-card {
+    animation: fadeInUp 0.6s ease-out;
+    animation-delay: 0.5s;
+}
+
+/* ============================================
+   TOOLTIPS PERSONALIZADOS
+   ============================================ */
+
+[data-toggle="tooltip"] {
+    cursor: help;
+    border-bottom: 1px dotted #667eea;
+}
+
+/* ============================================
+   SCROLL SUAVE
+   ============================================ */
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* ============================================
+   CUSTOM SCROLLBAR
+   ============================================ */
+
+.chart-body::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.chart-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.chart-body::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 4px;
+}
+
+.chart-body::-webkit-scrollbar-thumb:hover {
+    background: #5568d3;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

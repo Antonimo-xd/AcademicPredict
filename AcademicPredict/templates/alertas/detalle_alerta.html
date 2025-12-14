@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Detalle de Alerta - AcademicPredict{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/alertas_detalle.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header con botón volver -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <a href="{% url 'alertas:dashboard' %}" class="btn btn-outline-secondary mb-3">
+                <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard
+            </a>
+            <h2>
+                <i class="fas fa-bell me-2"></i>
+                Detalle de Alerta #{{ alerta.id }}
+            </h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Información de la Alerta -->
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle me-2"></i>Información de la Alerta</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="text-muted">Estudiante</label>
+                            <p class="mb-0">
+                                <strong>{{ alerta.estudiante.codigo_estudiante }}</strong>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted">Prioridad</label>
+                            <p class="mb-0">
+                                <span class="badge prioridad-{{ alerta.prioridad }} badge-lg">
+                                    {{ alerta.get_prioridad_display }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="text-muted">Tipo de Alerta</label>
+                            <p class="mb-0">{{ alerta.get_tipo_alerta_display }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted">Estado</label>
+                            <p class="mb-0">
+                                <span class="badge estado-{{ alerta.estado }} badge-lg">
+                                    {{ alerta.get_estado_display }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="text-muted">Índice de Riesgo</label>
+                            <p class="mb-0">
+                                {% if alerta.prediccion %}
+                                    {% with indice=alerta.prediccion.indice_riesgo %}
+                                        {% if indice or indice == 0 %}
+                                            <span class="badge bg-danger fs-5">
+                                                {{ indice|floatformat:1 }}%
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary fs-5">
+                                                Sin datos
+                                            </span>
+                                        {% endif %}
+                                    {% endwith %}
+                                {% else %}
+                                    <span class="badge bg-warning fs-5">
+                                        Sin predicción
+                                    </span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted">Fecha de Creación</label>
+                            <p class="mb-0">{{ alerta.fecha_creacion|date:"d/m/Y H:i" }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label class="text-muted">Título</label>
+                            <p class="mb-0"><strong>{{ alerta.titulo }}</strong></p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <label class="text-muted">Mensaje</label>
+                            <p class="mb-0">{{ alerta.mensaje }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-tasks me-2"></i>Acciones</h5>
+                </div>
+                <div class="card-body">
+                    
+                    {# ✅ SOLO ADMIN/COORDINADOR puede cambiar estado #}
+                    {% if user.perfil.rol in 'admin,coordinador' %}
+                    <form method="POST" action="{% url 'alertas:cambiar_estado' pk=alerta.id %}">
+                        {% csrf_token %}
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label>Cambiar Estado</label>
+                                <select name="estado" class="form-select">
+                                    <option value="pendiente" {% if alerta.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                                    <option value="en_revision" {% if alerta.estado == 'en_revision' %}selected{% endif %}>En Revisión</option>
+                                    <option value="resuelta" {% if alerta.estado == 'resuelta' %}selected{% endif %}>Resuelta</option>
+                                    <option value="descartada" {% if alerta.estado == 'descartada' %}selected{% endif %}>Descartada</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label>&nbsp;</label>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-save me-2"></i>Actualizar Estado
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    <hr class="my-3">
+                    {% endif %}
+                    
+                    {# ✅ BOTONES para todos #}
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'alertas:seguimiento' codigo=alerta.estudiante.codigo_estudiante %}" class="btn btn-success">
+                            <i class="fas fa-user-check me-2"></i>Ver Ficha de Seguimiento
+                        </a>
+                        <a href="{% url 'ml:estudiante_detalle_ml' estudiante_id=alerta.estudiante.id %}" class="btn btn-info">
+                            <i class="fas fa-chart-line me-2"></i>Ver Predicción ML
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información del Estudiante -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-user me-2"></i>Información del Estudiante</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="text-muted">Código</label>
+                        <p class="mb-0"><strong>{{ alerta.estudiante.codigo_estudiante }}</strong></p>
+                    </div>
+
+                    {% if alerta.prediccion %}
+                    <div class="mb-3">
+                        <label class="text-muted">Índice de Riesgo de Deserción</label>
+                        <p class="mb-0">
+                            {% with indice=alerta.prediccion.indice_riesgo %}
+                                {% if indice or indice == 0 %}
+                                    <span class="badge bg-danger fs-6">
+                                        {{ indice|floatformat:1 }}%
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary fs-6">N/A</span>
+                                {% endif %}
+                            {% endwith %}
+                        </p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="text-muted">Clasificación de Riesgo</label>
+                        <p class="mb-0">
+                            <span class="badge riesgo-{{ alerta.prediccion.clasificacion_riesgo }} fs-6">
+                                {{ alerta.prediccion.get_clasificacion_riesgo_display }}
+                            </span>
+                        </p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="text-muted">Modelo Usado</label>
+                        <p class="mb-0">{{ alerta.prediccion.modelo_usado }}</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="text-muted">Fecha de Predicción</label>
+                        <p class="mb-0">{{ alerta.prediccion.fecha_prediccion|date:"d/m/Y H:i" }}</p>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Sin predicción ML asociada</strong>
+                        <p class="mb-0 mt-2 small">
+                            Esta alerta puede ser manual o no tener análisis ML disponible.
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/alertas_detalle.js' %}"></script>
+{% endblock %}

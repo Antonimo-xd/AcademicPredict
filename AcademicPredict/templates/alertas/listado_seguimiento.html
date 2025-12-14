@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Estudiantes en Seguimiento - AcademicPredict{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/listado_seguimiento.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>
+                <i class="fas fa-users me-2"></i>
+                Estudiantes en Seguimiento
+            </h2>
+            <p class="text-muted">Gestión de estudiantes con seguimiento activo</p>
+        </div>
+    </div>
+
+    <!-- Estadísticas Rápidas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card bg-primary">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ total_seguimiento|intcomma }}</h3>
+                    <p>En Seguimiento Activo</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card bg-danger">
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ riesgo_critico|intcomma }}</h3>
+                    <p>Riesgo Crítico</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card bg-warning">
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ riesgo_alto|intcomma }}</h3>
+                    <p>Riesgo Alto</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card bg-success">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ con_intervenciones|intcomma }}</h3>
+                    <p>Con Intervenciones</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-filter me-2"></i>Filtros</h5>
+                </div>
+                <div class="card-body">
+                    <form method="GET" id="filtrosForm">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label>Búsqueda</label>
+                                <input type="text" name="busqueda" class="form-control" 
+                                       placeholder="Código de estudiante..." 
+                                       value="{{ request.GET.busqueda }}">
+                            </div>
+
+                            <div class="col-md-3">
+                                <label>Nivel de Riesgo</label>
+                                <select name="riesgo" class="form-select">
+                                    <option value="">Todos</option>
+                                    <option value="critico" {% if request.GET.riesgo == 'critico' %}selected{% endif %}>Crítico</option>
+                                    <option value="alto" {% if request.GET.riesgo == 'alto' %}selected{% endif %}>Alto</option>
+                                    <option value="medio" {% if request.GET.riesgo == 'medio' %}selected{% endif %}>Medio</option>
+                                    <option value="bajo" {% if request.GET.riesgo == 'bajo' %}selected{% endif %}>Bajo</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label>Con Intervenciones</label>
+                                <select name="intervenciones" class="form-select">
+                                    <option value="">Todos</option>
+                                    <option value="si" {% if request.GET.intervenciones == 'si' %}selected{% endif %}>Sí</option>
+                                    <option value="no" {% if request.GET.intervenciones == 'no' %}selected{% endif %}>No</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-2">
+                                <label>&nbsp;</label>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-search me-2"></i>Filtrar
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de Estudiantes -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-list me-2"></i>Listado de Estudiantes</h5>
+                    <div>
+                        <span class="badge bg-primary me-2">{{ estudiantes.count }} resultados</span>
+                        <button class="btn btn-sm btn-success" onclick="exportarExcel()">
+                            <i class="fas fa-file-excel me-2"></i>Exportar Excel
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Índice Riesgo</th>
+                                    <th>Clasificación</th>
+                                    <th>Última Actualización</th>
+                                    <th>Intervenciones</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ficha in estudiantes %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ ficha.estudiante.codigo_estudiante }}</strong>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-danger">
+                                            {{ ficha.ultimo_indice_riesgo|floatformat:1 }}%
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if ficha.ultimo_indice_riesgo >= 70 %}
+                                            <span class="badge bg-danger">Crítico</span>
+                                        {% elif ficha.ultimo_indice_riesgo >= 50 %}
+                                            <span class="badge bg-warning">Alto</span>
+                                        {% elif ficha.ultimo_indice_riesgo >= 30 %}
+                                            <span class="badge bg-info">Medio</span>
+                                        {% else %}
+                                            <span class="badge bg-success">Bajo</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if ficha.ultima_actualizacion %}
+                                            {{ ficha.ultima_actualizacion|date:"d/m/Y H:i" }}
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">
+                                            {{ ficha.num_intervenciones }} intervención{{ ficha.num_intervenciones|pluralize:"es" }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if ficha.en_seguimiento %}
+                                            <span class="badge bg-success">Activo</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Inactivo</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'alertas:seguimiento' codigo=ficha.estudiante.codigo_estudiante %}" 
+                                           class="btn btn-sm btn-primary"
+                                           title="Ver ficha de seguimiento">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-4">
+                                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                                        <p>No hay estudiantes en seguimiento</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Paginación -->
+                {% if is_paginated %}
+                <div class="card-footer">
+                    <nav aria-label="Paginación">
+                        <ul class="pagination justify-content-center mb-0">
+                            {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if request.GET.busqueda %}&busqueda={{ request.GET.busqueda }}{% endif %}">Primera</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.busqueda %}&busqueda={{ request.GET.busqueda }}{% endif %}">Anterior</a>
+                            </li>
+                            {% endif %}
+
+                            <li class="page-item active">
+                                <span class="page-link">
+                                    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                                </span>
+                            </li>
+
+                            {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.busqueda %}&busqueda={{ request.GET.busqueda }}{% endif %}">Siguiente</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.busqueda %}&busqueda={{ request.GET.busqueda }}{% endif %}">Última</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/listado_seguimiento.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,898 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% load mathfilters %}
+{% load l10n %}
+
+{% block title %}Detalle Estudiante ML - {{ estudiante.codigo_estudiante }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard_ml.css' %}">
+<style>
+    /* Estilos adicionales para gráficos */
+    .chart-card {
+        background: white;
+        border-radius: 10px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .chart-container {
+        position: relative;
+        height: 350px;
+        margin-top: 20px;
+    }
+    
+    .explicacion-box {
+        background: #e7f3ff;
+        border-left: 4px solid #4facfe;
+        padding: 15px;
+        border-radius: 5px;
+        margin-top: 15px;
+    }
+    
+    .explicacion-box h6 {
+        color: #2c3e50;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    
+    .explicacion-box p {
+        color: #6c757d;
+        margin-bottom: 5px;
+        font-size: 14px;
+    }
+
+        /* Estilos para iconos de tendencia */
+    .tendencia-icon {
+        display: block;
+        font-size: 3rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .tendencia-mejorando {
+        color: #28a745;  /* Verde */
+    }
+
+    .tendencia-empeorando {
+        color: #dc3545;  /* Rojo */
+    }
+
+    .tendencia-estable {
+        color: #6c757d;  /* Gris */
+    }
+
+    .tendencia-sin_datos {
+        color: #ffc107;  /* Amarillo */
+    }
+
+    .metric-item {
+        padding: 20px;
+        border-radius: 8px;
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+
+    .metric-item:hover {
+        background: #e9ecef;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'ml:dashboard_ml' %}">Dashboard ML</a></li>
+            <li class="breadcrumb-item active">{{ estudiante.codigo_estudiante }}</li>
+        </ol>
+    </nav>
+    
+    <!-- Header -->
+    <div class="detail-card">
+        <div class="detail-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="mb-2">
+                        <i class="fas fa-user-graduate text-primary me-2"></i>
+                        Estudiante: {{ estudiante.codigo_estudiante }}
+                    </h2>
+                    <p class="text-muted mb-1">
+                        <i class="fas fa-graduation-cap me-2"></i>
+                        Carrera: {{ estudiante.carrera.nombre }}
+                    </p>
+                    <p class="text-muted mb-0">
+                        <i class="fas fa-calendar me-2"></i>
+                        Predicción: {{ prediccion.fecha_prediccion|date:"d/m/Y H:i" }}
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <span class="risk-badge-large badge-nivel-{{ prediccion.nivel_riesgo|lower }}">
+                        {{ prediccion.nivel_riesgo }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ✅ Métricas principales CON TODAS LAS CORRECCIONES -->
+        <div class="row mt-4">
+            <div class="col-md-3">
+                <div class="metric-item text-center">
+                    <h3 class="text-danger mb-1">
+                        {% widthratio prediccion.probabilidad_desercion 1 100 %}%
+                    </h3>
+                    <small class="text-muted">Probabilidad Deserción</small>
+                    <div class="mt-2">
+                        <small class="text-muted" style="font-size: 0.75rem;">
+                            <i class="fas fa-info-circle"></i>
+                            Modelo XGBoost
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-item text-center">
+                    <h3 class="text-success mb-1">
+                        {{ prediccion.rendimiento_predicho_futuro|floatformat:0 }}%
+                    </h3>
+                    <small class="text-muted">Rendimiento Predicho</small>
+                    <div class="mt-2">
+                        <small class="text-muted" style="font-size: 0.75rem;">
+                            <i class="fas fa-info-circle"></i>
+                            Desempeño esperado
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-item text-center">
+                    <h3 class="{% if prediccion.es_anomalia %}text-warning{% else %}text-success{% endif %} mb-1">
+                        {% if prediccion.es_anomalia %}Sí{% else %}No{% endif %}
+                    </h3>
+                    <small class="text-muted">Es Anomalía</small>
+                    <div class="mt-2">
+                        <small class="text-muted" style="font-size: 0.75rem;">
+                            <i class="fas fa-info-circle"></i>
+                            {% if prediccion.es_anomalia %}
+                                Comportamiento atípico
+                            {% else %}
+                                Comportamiento normal
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-item text-center">
+                    <h3 class="text-info mb-1">
+                        <!-- ✅ CORRECCIÓN: Ranking donde 1 = mejor -->
+                        #{{ ranking }}<span style="font-size: 0.7em; color: #6c757d;">/{{ total_cohorte }}</span>
+                    </h3>
+                    <small class="text-muted">Ranking Cohorte</small>
+                    <div class="mt-2">
+                        <small class="text-muted" style="font-size: 0.75rem;">
+                            <i class="fas fa-info-circle"></i>
+                            <!-- ✅ Explicación clara del ranking -->
+                            {% if ranking <= 10 %}
+                                Top 10 en cohorte 🏆
+                            {% elif ranking <= total_cohorte|mul:0.25 %}
+                                Top 25% de cohorte
+                            {% elif ranking <= total_cohorte|mul:0.50 %}
+                                Mitad superior cohorte
+                            {% else %}
+                                Mitad inferior cohorte
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="detail-card">
+        <div class="detail-header mb-3">
+            <h4>
+                <i class="fas fa-tasks me-2"></i>
+                Acciones de Seguimiento
+            </h4>
+        </div>
+        
+        {# ============================================ #}
+        {# ADMIN / COORDINADOR: Asignar analista       #}
+        {# ============================================ #}
+        {% if puede_asignar %}
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    {% if alerta and alerta.analista_asignado %}
+                        <strong>Caso asignado a:</strong> {{ alerta.analista_asignado.get_full_name }}
+                        <span class="badge bg-{{ alerta.estado }}-light ms-2">{{ alerta.get_estado_display }}</span>
+                    {% else %}
+                        Este caso aún no está asignado a ningún analista.
+                    {% endif %}
+                </div>
+                
+                <form method="post" action="{% url 'asignar_analista' estudiante.id %}" class="mb-3">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-user-plus me-2"></i>
+                            Asignar/Reasignar a:
+                        </label>
+                        <select name="analista_id" class="form-select" required>
+                            <option value="">-- Seleccionar Analista --</option>
+                            {% for analista in analistas_disponibles %}
+                            <option value="{{ analista.id }}"
+                                    {% if alerta and alerta.analista_asignado == analista %}selected{% endif %}>
+                                {{ analista.get_full_name }} 
+                                ({{ analista.casos_activos }} casos activos)
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-user-check me-2"></i>
+                        {% if alerta and alerta.analista_asignado %}Reasignar{% else %}Asignar{% endif %} Analista
+                    </button>
+                </form>
+            </div>
+        </div>
+        <hr>
+        {% endif %}
+        
+        {# ============================================ #}
+        {# ANALISTA: Solo si está asignado a él        #}
+        {# ============================================ #}
+        {% if es_analista_asignado %}
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Este caso está <strong>asignado a ti</strong>. 
+                    Puedes registrar intervenciones y dar seguimiento.
+                </div>
+                
+                <div class="d-flex gap-2 mb-3">
+                    <!-- Botón Registrar Intervención -->
+                    <a href="{% url 'registrar_intervencion' alerta.id %}" 
+                    class="btn btn-success">
+                        <i class="fas fa-clipboard-check me-2"></i>
+                        Registrar Intervención
+                    </a>
+                    
+                    <!-- Botón Marcar Resuelta -->
+                    {% if alerta.estado != 'resuelta' %}
+                    <form method="post" 
+                        action="{% url 'marcar_resuelta' alerta.id %}"
+                        class="d-inline"
+                        onsubmit="return confirm('¿Marcar este caso como resuelto?')">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-info">
+                            <i class="fas fa-check-double me-2"></i>
+                            Marcar como Resuelta
+                        </button>
+                    </form>
+                    {% else %}
+                    <span class="badge bg-success p-2">
+                        <i class="fas fa-check-circle me-1"></i>
+                        Caso Resuelto
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        {% elif user_rol == 'analista' %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            Este caso <strong>no está asignado a ti</strong>. 
+            No puedes realizar acciones sobre él.
+        </div>
+        {% endif %}
+        
+        {# ============================================ #}
+        {# HISTORIAL DE INTERVENCIONES                 #}
+        {# ============================================ #}
+        {% if intervenciones %}
+        <hr>
+        <h5 class="mt-4 mb-3">
+            <i class="fas fa-history me-2"></i>
+            Historial de Intervenciones
+        </h5>
+        
+        <div class="timeline">
+            {% for intervencion in intervenciones %}
+            <div class="timeline-item">
+                <div class="timeline-marker bg-{{ intervencion.resultado }}-light">
+                    <i class="fas fa-clipboard-check"></i>
+                </div>
+                <div class="timeline-content">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <h6 class="mb-1">
+                                {{ intervencion.get_tipo_intervencion_display }}
+                            </h6>
+                            <small class="text-muted">
+                                <i class="fas fa-user me-1"></i>
+                                {{ intervencion.analista.get_full_name }}
+                                &nbsp;•&nbsp;
+                                <i class="fas fa-calendar me-1"></i>
+                                {{ intervencion.fecha_intervencion|date:"d/m/Y H:i" }}
+                            </small>
+                        </div>
+                        {% if intervencion.resultado %}
+                        <span class="badge bg-{{ intervencion.resultado }}-light">
+                            {{ intervencion.get_resultado_display }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    <p class="mb-1">{{ intervencion.descripcion }}</p>
+                    {% if intervencion.fecha_proximo_seguimiento %}
+                    <small class="text-muted">
+                        <i class="fas fa-calendar-check me-1"></i>
+                        Próximo seguimiento: {{ intervencion.fecha_proximo_seguimiento|date:"d/m/Y" }}
+                    </small>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- ✅ NUEVO: Top% a Nivel Universidad -->
+    <div class="detail-card">
+        <div class="alert alert-info text-center mb-0">
+            <h5 class="mb-2">
+                <i class="fas fa-university me-2"></i>
+                {% if top_percentil < 1 %}
+                    <strong>Top {{ ranking_absoluto }} de {{ total_universidad|intcomma }}</strong> a Nivel Universidad
+                    <small class="text-muted">({{ top_percentil|floatformat:2 }}%)</small>
+                {% elif top_percentil >= 99 %}
+                    <strong>Top {{ ranking_absoluto|intcomma }} de {{ total_universidad|intcomma }}</strong> a Nivel Universidad
+                    <small class="text-muted">({{ top_percentil|floatformat:2 }}%)</small>
+                {% else %}
+                    <strong>Top {{ top_percentil|floatformat:1 }}%</strong> a Nivel Universidad
+                {% endif %}
+            </h5>
+            <p class="mb-0">
+                {% if top_percentil <= 10 %}
+                    <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+                    Este estudiante está entre el <strong>10% con MAYOR riesgo</strong> de toda la universidad.
+                    <strong>Prioridad MÁXIMA.</strong>
+                {% elif top_percentil <= 25 %}
+                    <i class="fas fa-exclamation-circle text-warning me-2"></i>
+                    Este estudiante está entre el <strong>25% con mayor riesgo</strong> de toda la universidad.
+                    <strong>Prioridad ALTA.</strong>
+                {% elif top_percentil <= 50 %}
+                    <i class="fas fa-info-circle text-primary me-2"></i>
+                    Este estudiante está en la <strong>mitad superior de riesgo</strong> a nivel universidad.
+                    <strong>Requiere seguimiento.</strong>
+                {% elif top_percentil <= 75 %}
+                    <i class="fas fa-check-circle text-success me-2"></i>
+                    Este estudiante está en la <strong>mitad inferior de riesgo</strong> a nivel universidad.
+                    <strong>Situación estable.</strong>
+                {% else %}
+                    <i class="fas fa-star text-success me-2"></i>
+                    Este estudiante está entre el <strong>25% con MENOR riesgo</strong> de toda la universidad.
+                    <strong>Excelente situación académica.</strong>
+                {% endif %}
+            </p>
+            
+            <!-- Barra de progreso visual del percentil -->
+            <div class="progress mt-3" style="height: 25px;">
+                <div id="topPercentilBar" 
+                    class="progress-bar {% if top_percentil <= 10 %}bg-danger{% elif top_percentil <= 25 %}bg-warning{% elif top_percentil <= 50 %}bg-info{% else %}bg-success{% endif %}" 
+                    role="progressbar" 
+                    data-percentil="{{ top_percentil|floatformat:1 }}">
+                    <strong id="topPercentilText">{{ top_percentil|floatformat:1 }}%</strong>
+                </div>
+            </div>
+            
+            <small class="text-muted mt-2 d-block">
+                <i class="fas fa-lightbulb me-1"></i>
+                <strong>Interpretación:</strong> 
+                Top 10% = Mayor riesgo (prioridad máxima) | 
+                Top 50% = Riesgo medio | 
+                Top 90% = Menor riesgo (bajo seguimiento)
+            </small>
+        </div>
+    </div>
+    
+    <!-- ✅ GRÁFICO: Factores de Riesgo -->
+    <div class="chart-card">
+        <h4 class="mb-3">
+            <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+            Factores de Riesgo Identificados
+            <span class="info-tooltip" data-bs-toggle="tooltip" title="Factores que aumentan la probabilidad de deserción">?</span>
+        </h4>
+        
+        {% if prediccion.factores_riesgo %}
+            <div class="chart-container">
+                <canvas id="factoresChart"></canvas>
+            </div>
+            
+            <!-- Explicación: ¿Qué es el PESO? -->
+            <div class="explicacion-box mt-4">
+                <h6><i class="fas fa-info-circle me-2"></i>¿Qué significa "Peso"?</h6>
+                <p><strong>El peso indica qué tan importante es cada factor en la predicción del modelo ML.</strong></p>
+                <p>📊 <strong>Ejemplo:</strong> Si "Asistencia baja" tiene un peso de 25%, significa que este factor representa el 25% de la decisión del modelo para predecir deserción.</p>
+                <p>💡 <strong>Regla práctica:</strong></p>
+                <ul class="mb-0">
+                    <li>Peso > 15%: Factor MUY importante</li>
+                    <li>Peso 10-15%: Factor importante</li>
+                    <li>Peso < 10%: Factor moderado</li>
+                </ul>
+            </div>
+            
+            <!-- Tabla detallada de factores -->
+            <div class="table-responsive mt-4">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th width="30%">Factor</th>
+                            <th width="25%">Descripción</th>
+                            <th width="15%" class="text-center">Valor Actual</th>
+                            <th width="15%" class="text-center">Valor Esperado</th>
+                            <th width="10%" class="text-center">Impacto</th>
+                            <th width="5%" class="text-center">Peso</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for factor in prediccion.factores_riesgo %}
+                        <tr class="factor-row-{{ factor.impacto|lower }}">
+                            <td><strong>{{ factor.factor }}</strong></td>
+                            <td><small class="text-muted">{{ factor.descripcion }}</small></td>
+                            <td class="text-center"><strong class="text-danger">{{ factor.valor_actual }}</strong></td>
+                            <td class="text-center"><small class="text-muted">{{ factor.valor_esperado }}</small></td>
+                            <td class="text-center">
+                                <span class="badge bg-{{ factor.impacto|lower }}">{{ factor.impacto }}</span>
+                            </td>
+                            <td class="text-center">
+                                <strong>{{ factor.peso|floatformat:1 }}%</strong>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="6" class="bg-light">
+                                <small>
+                                    <i class="fas fa-lightbulb text-warning me-2"></i>
+                                    <strong>Recomendación:</strong> {{ factor.recomendacion }}
+                                </small>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle me-2"></i>
+                No se identificaron factores de riesgo significativos.
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- ✅ GRÁFICO: Comparativa con Cohorte -->
+    <div class="chart-card">
+        <h4 class="mb-3">
+            <i class="fas fa-users text-secondary me-2"></i>
+            Comparativa con Cohorte (Año {{ prediccion.registro_academico.anio_academico }})
+            <span class="info-tooltip" data-bs-toggle="tooltip" title="Comparación con estudiantes del mismo año">?</span>
+        </h4>
+        
+        <div class="chart-container">
+            <canvas id="comparativaChart"></canvas>
+        </div>
+        
+        <!-- Explicación: ¿Cómo interpretar? -->
+        <div class="explicacion-box mt-4">
+            <h6><i class="fas fa-info-circle me-2"></i>¿Cómo interpretar esta comparativa?</h6>
+            <p><strong>Este gráfico compara la probabilidad de deserción de este estudiante con el promedio de su cohorte</strong> (estudiantes de la misma carrera y año de ingreso).</p>
+            <p>📊 <strong>Interpretación:</strong></p>
+            <ul class="mb-0">
+                <li><strong>Barra azul (Promedio Cohorte):</strong> Probabilidad promedio de todos los estudiantes similares</li>
+                <li><strong>Barra roja (Este Estudiante):</strong> Probabilidad de este estudiante específico</li>
+                <li><strong>Si roja > azul:</strong> Mayor riesgo que el promedio de sus compañeros</li>
+                <li><strong>Si roja < azul:</strong> Menor riesgo que el promedio de sus compañeros</li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- ✅ GRÁFICO: Tendencias Académicas -->
+    <div class="chart-card">
+        <h4 class="mb-3">
+            <i class="fas fa-chart-line text-info me-2"></i>
+            Tendencias Académicas
+            <span class="info-tooltip" data-bs-toggle="tooltip" title="Evolución del rendimiento del estudiante">?</span>
+        </h4>
+        
+        <div class="row">
+            <div class="col-md-4">
+                <div class="metric-item text-center">
+                    <span class="tendencia-icon tendencia-{{ tendencias.tareas }}" style="font-size: 3rem;">
+                        {% if tendencias.tareas == 'mejorando' %}↗
+                        {% elif tendencias.tareas == 'empeorando' %}↘
+                        {% elif tendencias.tareas == 'estable' %}→
+                        {% else %}?{% endif %}
+                    </span>
+                    <h6>Tareas Entregadas</h6>
+                    <p class="mb-0">
+                        {% if tendencias.tareas == 'mejorando' %}
+                            <span class="badge bg-success">Mejorando</span>
+                        {% elif tendencias.tareas == 'empeorando' %}
+                            <span class="badge bg-danger">Empeorando</span>
+                        {% elif tendencias.tareas == 'estable' %}
+                            <span class="badge bg-secondary">Estable</span>
+                        {% else %}
+                            <span class="badge bg-light text-dark">Sin datos</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="metric-item text-center">
+                    <span class="tendencia-icon tendencia-{{ tendencias.asistencia }}" style="font-size: 3rem;">
+                        {% if tendencias.asistencia == 'mejorando' %}↗
+                        {% elif tendencias.asistencia == 'empeorando' %}↘
+                        {% elif tendencias.asistencia == 'estable' %}→
+                        {% else %}?{% endif %}
+                    </span>
+                    <h6>Asistencia Campus</h6>
+                    <p class="mb-0">
+                        {% if tendencias.asistencia == 'mejorando' %}
+                            <span class="badge bg-success">Mejorando</span>
+                        {% elif tendencias.asistencia == 'empeorando' %}
+                            <span class="badge bg-danger">Empeorando</span>
+                        {% elif tendencias.asistencia == 'estable' %}
+                            <span class="badge bg-secondary">Estable</span>
+                        {% else %}
+                            <span class="badge bg-light text-dark">Sin datos</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="metric-item text-center">
+                    <span class="tendencia-icon tendencia-{{ tendencias.lms }}" style="font-size: 3rem;">
+                        {% if tendencias.lms == 'mejorando' %}↗
+                        {% elif tendencias.lms == 'empeorando' %}↘
+                        {% elif tendencias.lms == 'estable' %}→
+                        {% else %}?{% endif %}
+                    </span>
+                    <h6>Uso LMS</h6>
+                    <p class="mb-0">
+                        {% if tendencias.lms == 'mejorando' %}
+                            <span class="badge bg-success">Mejorando</span>
+                        {% elif tendencias.lms == 'empeorando' %}
+                            <span class="badge bg-danger">Empeorando</span>
+                        {% elif tendencias.lms == 'estable' %}
+                            <span class="badge bg-secondary">Estable</span>
+                        {% else %}
+                            <span class="badge bg-light text-dark">Sin datos</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Explicación de tendencias -->
+        <div class="explicacion-box mt-4">
+            <h6><i class="fas fa-info-circle me-2"></i>¿Cómo interpretar las tendencias?</h6>
+            <p><strong>Las tendencias comparan el desempeño actual con períodos académicos anteriores.</strong></p>
+            <p>📊 <strong>Indicadores:</strong></p>
+            <ul class="mb-0">
+                <li>↗ <strong>Mejorando:</strong> Mejora > 10% respecto al período anterior</li>
+                <li>→ <strong>Estable:</strong> Variación entre -10% y +10%</li>
+                <li>↘ <strong>Empeorando:</strong> Disminución > 10% respecto al período anterior</li>
+                <li>? <strong>Sin datos:</strong> No hay registros anteriores para comparar</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ✅ CORRECCIÓN: Acciones Recomendadas -->
+    <div class="chart-card">
+        <h4 class="mb-3">
+            <i class="fas fa-tasks text-primary me-2"></i>
+            Acciones Recomendadas ({{ recomendaciones|length }} acciones)
+        </h4>
+        
+        {% if not recomendaciones %}
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                No se generaron recomendaciones para este nivel de riesgo.
+                <br>
+                <small>Nivel detectado: <strong>{{ prediccion.nivel_riesgo }}</strong></small>
+            </div>
+        {% else %}
+            <div class="row">
+                <div class="col-12">
+                    <ul class="list-group">
+                        {% for accion in recomendaciones %}
+                        <li class="list-group-item">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            {{ accion }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Explicación de urgencia según nivel -->
+            <div class="alert alert-{{ prediccion.nivel_riesgo|lower }} mt-3">
+                <h6 class="mb-2">
+                    <i class="fas fa-clock me-2"></i>
+                    <strong>Tiempo de Respuesta Recomendado:</strong>
+                </h6>
+                {% if prediccion.nivel_riesgo == 'Critico' %}
+                    <p class="mb-0">⏰ <strong>URGENTE - 24 horas:</strong> Contactar al estudiante y coordinador inmediatamente.</p>
+                {% elif prediccion.nivel_riesgo == 'Alto' %}
+                    <p class="mb-0">📅 <strong>Prioritario - 48 horas:</strong> Programar reunión y seguimiento semanal.</p>
+                {% elif prediccion.nivel_riesgo == 'Medio' %}
+                    <p class="mb-0">📊 <strong>Regular - 1 semana:</strong> Establecer seguimiento quincenal.</p>
+                {% else %}
+                    <p class="mb-0">✅ <strong>Preventivo - 1 mes:</strong> Mantener monitoreo mensual.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- ✅ Botones de acción -->
+    <div class="detail-card">
+        <div class="row">
+            <div class="col-md-4">
+                <a href="{% url 'ml:dashboard_ml' %}" class="btn btn-secondary w-100 mb-2">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    Volver al Dashboard
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{% url 'ml:exportar_detalle_excel' estudiante.id %}" class="btn btn-success w-100 mb-2">
+                    <i class="fas fa-file-excel me-2"></i>
+                    Exportar a Excel
+                </a>
+            </div>
+            <div class="col-md-4">
+                <button class="btn btn-primary w-100 mb-2" onclick="window.print()">
+                    <i class="fas fa-print me-2"></i>
+                    Imprimir Vista
+                </button>
+            </div>
+        </div>
+    </div>
+    
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js -->
+<script src="{% static 'js/chart.js' %}"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
+    // ✅ GRÁFICO 1: Factores de Riesgo (Barras horizontales)
+    {% if prediccion.factores_riesgo %}
+    const factoresCtx = document.getElementById('factoresChart');
+    if (factoresCtx) {
+        const factoresData = {
+            labels: [
+                {% for factor in prediccion.factores_riesgo|slice:":6" %}
+                    '{{ factor.factor|truncatechars:30|escapejs }}',
+                {% endfor %}
+            ],
+            datasets: [{
+                label: 'Peso en Predicción (%)',
+                data: [
+                    {% for factor in prediccion.factores_riesgo|slice:":6" %}
+                        {{ factor.peso|floatformat:2 }},
+                    {% endfor %}
+                ],
+                backgroundColor: [
+                    {% for factor in prediccion.factores_riesgo|slice:":6" %}
+                        {% if factor.impacto == 'ALTO' %}'rgba(245, 87, 108, 0.8)',
+                        {% elif factor.impacto == 'MEDIO' %}'rgba(79, 172, 254, 0.8)',
+                        {% else %}'rgba(17, 153, 142, 0.8)',
+                        {% endif %}
+                    {% endfor %}
+                ],
+                borderColor: [
+                    {% for factor in prediccion.factores_riesgo|slice:":6" %}
+                        {% if factor.impacto == 'ALTO' %}'rgb(245, 87, 108)',
+                        {% elif factor.impacto == 'MEDIO' %}'rgb(79, 172, 254)',
+                        {% else %}'rgb(17, 153, 142)',
+                        {% endif %}
+                    {% endfor %}
+                ],
+                borderWidth: 2
+            }]
+        };
+        
+        new Chart(factoresCtx, {
+            type: 'bar',
+            data: factoresData,
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: 'Top 6 Factores de Riesgo (por peso en predicción)',
+                        font: { size: 16 }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 25,
+                        title: {
+                            display: true,
+                            text: 'Peso (%)'
+                        }
+                    }
+                }
+            }
+        });
+    }
+    {% endif %}
+    
+    // ✅ GRÁFICO 2: Comparativa con Cohorte - CORREGIDO
+    const comparativaCtx = document.getElementById('comparativaChart');
+    if (comparativaCtx) {
+        // ✅ FUNCIÓN: Convertir formato europeo a decimal estándar
+        function parseEuropeanFloat(value) {
+            if (typeof value === 'number') return value;
+            if (typeof value !== 'string') return 0;
+            
+            // Reemplazar coma por punto: 0,989 → 0.989
+            const cleanValue = value.replace(',', '.');
+            const parsed = parseFloat(cleanValue);
+            return isNaN(parsed) ? 0 : parsed;
+        }
+        
+        // Parsear valores correctamente
+        const probEstudianteRaw = '{{ prediccion.probabilidad_desercion|floatformat:4|default:"0" }}';
+        const promCohorteRaw = '{{ promedio_cohorte|floatformat:4|default:"0" }}';
+        
+        const probEstudiante = parseEuropeanFloat(probEstudianteRaw) * 100;
+        const promCohorte = parseEuropeanFloat(promCohorteRaw);
+        
+        // Debug mejorado
+        console.log('=== DEBUG GRÁFICO COMPARATIVA ===');
+        console.log('Probabilidad estudiante (raw):', probEstudianteRaw);
+        console.log('Probabilidad estudiante (convertido):', probEstudiante, '%');
+        console.log('Promedio cohorte (raw):', promCohorteRaw);
+        console.log('Promedio cohorte (convertido):', promCohorte, '%');
+        
+        // Validar que los números sean válidos
+        if (isNaN(probEstudiante) || isNaN(promCohorte)) {
+            console.error('❌ ERROR: Valores inválidos detectados');
+            console.error('probEstudiante:', probEstudiante);
+            console.error('promCohorte:', promCohorte);
+            
+            // Mostrar mensaje de error en el DOM
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'alert alert-warning mt-3';
+            errorMsg.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>No se pudo cargar el gráfico. Por favor, recarga la página.';
+            comparativaCtx.parentNode.appendChild(errorMsg);
+            comparativaCtx.style.display = 'none';
+        } else {
+            console.log('✅ Valores válidos, creando gráfico...');
+            
+            // Crear gráfico solo si los valores son válidos
+            new Chart(comparativaCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Promedio Cohorte', 'Este Estudiante'],
+                    datasets: [{
+                        label: 'Probabilidad Deserción (%)',
+                        data: [promCohorte, probEstudiante],
+                        backgroundColor: [
+                            'rgba(79, 172, 254, 0.8)',
+                            'rgba(245, 87, 108, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgb(79, 172, 254)',
+                            'rgb(245, 87, 108)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Comparación con Promedio de Cohorte',
+                            font: { size: 16 }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Probabilidad (%)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            console.log('✅ Gráfico creado exitosamente');
+        }
+    }
+    
+    // ✅ CORREGIDO: Barra de progreso Top% (MISMO nivel que los gráficos)
+    const topBar = document.getElementById('topPercentilBar');
+    const topText = document.getElementById('topPercentilText');
+
+    if (topBar && topText) {
+        let percentil = topBar.getAttribute('data-percentil');
+        
+        console.log('=== DEBUG BARRA TOP% ===');
+        console.log('Percentil raw:', percentil);
+        
+        // Convertir formato europeo (74,4) a estándar (74.4)
+        if (typeof percentil === 'string') {
+            percentil = percentil.replace(',', '.');
+        }
+        
+        const percentilNum = parseFloat(percentil);
+        console.log('Percentil parseado:', percentilNum);
+        
+        if (!isNaN(percentilNum) && percentilNum >= 0 && percentilNum <= 100) {
+            // ✅ INVERTIR barra visual para hacerla intuitiva
+            // Top 1% (mayor riesgo) → Barra al 99% (casi llena)
+            // Top 90% (menor riesgo) → Barra al 10% (casi vacía)
+            const barraVisual = 100 - percentilNum;
+            
+            topBar.style.width = barraVisual + '%';
+            topBar.setAttribute('aria-valuenow', barraVisual);
+            
+            // Texto sigue mostrando el percentil real
+            topText.textContent = percentilNum.toFixed(1) + '%';
+            
+            console.log('✅ Barra aplicada (invertida):', barraVisual + '% (real: ' + percentilNum + '%)');
+        } else {
+            console.error('❌ ERROR: Percentil inválido:', percentilNum);
+        }
+    }
+    
+    // Animación fade-in (al final)
+    document.querySelectorAll('.detail-card, .chart-card').forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'all 0.5s ease';
+        
+        setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}

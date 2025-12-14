@@ -1,0 +1,36 @@
+/* ============================================
+   ALERTAS DETALLE CSS
+   ============================================ */
+
+.badge-lg {
+    font-size: 1rem;
+    padding: 8px 16px;
+}
+
+label.text-muted {
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+/* Clasificaciones de Riesgo */
+.riesgo-critico {
+    background: #dc3545;
+    color: white;
+}
+
+.riesgo-alto {
+    background: #ffc107;
+    color: #856404;
+}
+
+.riesgo-medio {
+    background: #17a2b8;
+    color: white;
+}
+
+.riesgo-bajo {
+    background: #28a745;
+    color: white;
+}
