@@ -7,7 +7,7 @@
 
 **AcademicPredict** es un sistema integral de detección temprana de deserción universitaria que combina análisis de datos, machine learning y gestión de alertas para identificar estudiantes en riesgo y facilitar intervenciones oportunas.
 
-Desarrollado como proyecto de tesis de Ingeniería en Informática.
+Desarrollado como proyecto de tesis de Ingeniería en Informática por **Bastián Vega**, **Erin Muñoz** y **Sebastián Araya**.
 
 ---
 
@@ -219,9 +219,72 @@ Accede a: **http://localhost:8000**
 
 ## 📂 **Carga de Datos**
 
+### **📊 Dataset Utilizado**
+
+Este proyecto utiliza el dataset público de investigación:
+
+**"University Student Dropout: A Longitudinal Dataset of Demographic, Socioeconomic, and Academic Indicators"**
+
+- 📄 **Publicación**: MDPI Data Journal
+- 🔗 **DOI**: https://doi.org/10.3390/data10100162
+- 📖 **Artículo completo**: https://www.mdpi.com/2306-5729/10/10/162
+- 📅 **Año**: 2025
+- 📊 **Características**: 
+  - +150,000 registros de estudiantes
+  - 77 variables (demográficas, socioeconómicas, académicas y LMS)
+  - Datos longitudinales de múltiples años académicos
+  - Universidad europea (datos anonimizados)
+
+**Citación:**
+```bibtex
+@article{mdpi_student_dropout_2025,
+  title={University Student Dropout: A Longitudinal Dataset of Demographic, Socioeconomic, and Academic Indicators},
+  author={[Autores del paper]},
+  journal={Data},
+  volume={10},
+  number={10},
+  pages={162},
+  year={2025},
+  publisher={MDPI},
+  doi={10.3390/data10100162}
+}
+```
+
+**⚠️ Importante:** Este dataset está disponible bajo licencia abierta para investigación académica. Consulta el artículo original para términos de uso.
+
+---
+
 ### **1. Preparar Dataset**
 
 El sistema requiere un archivo CSV con **77 variables** en el siguiente formato:
+
+**⚠️ IMPORTANTE:** El dataset crudo de MDPI requiere preprocesamiento antes de importarlo.
+
+#### **Opción A: Usar Dataset Pre-procesado (Recomendado)**
+
+Si recibes el dataset ya limpio por el equipo:
+- Usar directamente `dataset_XXXX_ultra_limpio.csv`
+- Continuar con la sección de importación
+
+#### **Opción B: Procesar Dataset Crudo**
+
+Si descargas el dataset original de MDPI:
+
+1. **Ejecutar script de limpieza:**
+   ```bash
+   cd scripts/
+   python limpiar_dataset_DEFINITIVO.py
+   ```
+
+2. **Ver documentación completa:** [PREPROCESAMIENTO.md](PREPROCESAMIENTO.md)
+
+Este script realiza 114 transformaciones automáticas:
+- ✅ Hashes → Etiquetas legibles (`Estudiante_1`, `Carrera_1`)
+- ✅ Columnas → Nombres descriptivos en español
+- ✅ Valores categóricos → Texto legible (`A` → `Abandono`)
+- ✅ Formato europeo corregido
+
+---
 
 #### **Formato del CSV:**
 - **Separador**: `;` (punto y coma)
@@ -692,18 +755,23 @@ exit()
 
 ## 📖 **Documentación Adicional**
 
-### **Papers y Referencias**
+### **Dataset Original**
+- [University Student Dropout Dataset - MDPI](https://www.mdpi.com/2306-5729/10/10/162)
+- [DOI: 10.3390/data10100162](https://doi.org/10.3390/data10100162)
+
+### **Papers y Referencias de Machine Learning**
 - [XGBoost: A Scalable Tree Boosting System](https://arxiv.org/abs/1603.02754)
 - [Isolation Forest Algorithm](https://cs.nju.edu.cn/zhouzh/zhouzh.files/publication/icdm08b.pdf)
 - [SMOTE: Synthetic Minority Over-sampling Technique](https://arxiv.org/abs/1106.1813)
 
 ### **Guías de Django**
 - [Documentación Oficial Django 4.2](https://docs.djangoproject.com/en/4.2/)
-- [Django Rest Framework](https://www.django-rest-framework.org/)
+- [Django Best Practices](https://django-best-practices.readthedocs.io/)
 
 ### **Machine Learning**
 - [Scikit-learn User Guide](https://scikit-learn.org/stable/user_guide.html)
 - [XGBoost Documentation](https://xgboost.readthedocs.io/)
+- [Handling Imbalanced Datasets](https://imbalanced-learn.org/stable/)
 
 ---
 
@@ -725,23 +793,45 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más det
 
 ---
 
-## 👨‍💻 **Autor**
+## 👨‍💻 **Autores**
 
-**Bastián González**
-- Ingeniero en Informática
-- Proyecto de Tesis - AcademicPredict
-- 📧 Email: [tu_email@ejemplo.com]
-- 💼 LinkedIn: [tu-perfil]
-- 🐙 GitHub: [tu-usuario]
+Proyecto de Tesis - Ingeniería en Informática
+
+### **Equipo de Desarrollo:**
+
+**Bastián Vega**
+- 🎓 Ingeniero en Informática
+- 💻 Desarrollo Backend y Machine Learning
+- 📧 Email: [bastian.vega@ejemplo.com]
+- 💼 LinkedIn: [bastian-vega]
+- 🐙 GitHub: [bastian-vega]
+
+**Erin Muñoz**
+- 🎓 Ingeniero en Informática
+- 💻 Desarrollo Frontend y UX/UI
+- 📧 Email: [erin.munoz@ejemplo.com]
+- 💼 LinkedIn: [erin-munoz]
+- 🐙 GitHub: [erin-munoz]
+
+**Sebastián Araya**
+- 🎓 Ingeniero en Informática
+- 💻 Análisis de Datos y Documentación
+- 📧 Email: [sebastian.araya@ejemplo.com]
+- 💼 LinkedIn: [sebastian-araya]
+- 🐙 GitHub: [sebastian-araya]
 
 ---
 
 ## 🙏 **Agradecimientos**
 
-- Universidad [Nombre] por facilitar el dataset
-- Profesores guía por su orientación
-- Comunidad de Django y Scikit-learn por su excelente documentación
-- Anthropic Claude por asistencia en desarrollo
+- **Autores del dataset MDPI** por compartir datos de investigación de alta calidad
+  - Paper: "University Student Dropout: A Longitudinal Dataset"
+  - DOI: https://doi.org/10.3390/data10100162
+- **Universidad [Nombre]** por apoyo institucional y acceso a infraestructura
+- **Profesor(a) Guía [Nombre]** por su orientación y mentoría durante el desarrollo
+- **Equipo de desarrollo**: Bastián Vega, Erin Muñoz y Sebastián Araya por su dedicación
+- **Comunidad Open Source**: Django, Scikit-learn, XGBoost por sus excelentes frameworks
+- **Anthropic Claude** por asistencia en desarrollo y resolución de problemas técnicos
 
 ---
 
@@ -785,5 +875,9 @@ Si este proyecto te fue útil, considera darle una ⭐ en GitHub. ¡Gracias!
 ---
 
 <div align="center">
-  <strong>Desarrollado con ❤️ para mejorar la retención universitaria</strong>
+  <strong>Desarrollado con ❤️ por Bastián Vega, Erin Muñoz y Sebastián Araya</strong>
+  <br>
+  <em>Proyecto de Tesis - Ingeniería en Informática</em>
+  <br>
+  <em>Para mejorar la retención universitaria mediante Machine Learning</em>
 </div>
